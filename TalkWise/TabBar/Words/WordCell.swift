@@ -6,19 +6,42 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct WordCell: View {
+    
+    @EnvironmentObject var wordsViewModel: WordsViewModel
+
+    @State var word: String
+    @State var imageURL: URL?
     
     var body: some View {
         
         HStack {
-            Image("launchicon")
+//            Image("launchicon")
+//                .resizable()
+//                .aspectRatio(contentMode: .fit)
+//                .frame(width: 57, height: 53)
+//                .clipShape(RoundedRectangle(cornerRadius: 10))
+            
+//            AsyncImage(url: imageURL) { image in
+//                image.resizable()
+//            } placeholder: {
+//                Image("launchicon").resizable()
+//            }
+//            .frame(width: 57, height: 53)
+//            .clipShape(RoundedRectangle(cornerRadius: 10))
+            
+            
+            KFImage(imageURL)
+                .placeholder {
+                    Image("launchicon")
+                }
                 .resizable()
-                .aspectRatio(contentMode: .fit)
                 .frame(width: 57, height: 53)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             
-            Text("Apple")
+            Text(word)
                 .foregroundStyle(.white)
                 .font(.custom("Montserrat-Bold", size: 16))
             
@@ -30,13 +53,24 @@ struct WordCell: View {
         .padding(.vertical, 12)
         .background(
             BlurView(style: .systemUltraThinMaterialDark)
-           //     .opacity(0.8)
+                .overlay(content: {
+                    Color.black
+                        .opacity(0.15)
+                })
+         
         )
         .clipShape(RoundedRectangle(cornerRadius: 15))
+        .onAppear {
+            PexelsImageFetcher.shared.fetchImageURL(for: word) { url in
+                DispatchQueue.main.async {
+                    self.imageURL = url
+                }
+            }
+        }
       
     }
 }
 
 #Preview {
-    WordCell()
+    WordCell(word: "Test")
 }

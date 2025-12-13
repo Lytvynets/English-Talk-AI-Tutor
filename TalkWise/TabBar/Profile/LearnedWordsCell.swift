@@ -47,7 +47,11 @@ struct LearnedWordsCell: View {
             .padding()
             .background(
                 BlurView(style: .systemUltraThinMaterialDark)
-                    .opacity(0.7)
+                    .overlay(content: {
+                        Color.black
+                            .opacity(0.15)
+                    })
+//                    .opacity(0.7)
             )
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .gesture(

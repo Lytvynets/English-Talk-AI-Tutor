@@ -9,7 +9,8 @@ import SwiftUI
 
 struct AuthorizationView: View {
     
-    @State var email = ""
+    @EnvironmentObject var authorizationViewModel: AuthorizationViewModel
+    @State private var signIn = false
     
     var body: some View {
         
@@ -31,7 +32,6 @@ struct AuthorizationView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 200)
                 
-                
                 HStack {
                     Image("Vector-3")
                         .resizable()
@@ -40,17 +40,19 @@ struct AuthorizationView: View {
                         .padding(.leading, 7)
                         .padding(.trailing, 7)
                     
-                    TextField("Email Address", text: $email)
+                    TextField("Email Address", text: $authorizationViewModel.email)
+                        .foregroundStyle(.white)
+                        .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
                     
                 }
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 50)
                         .stroke(lineWidth: 1)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color(hex: "#3D4353") ?? .gray)
                 )
                 .padding(.horizontal)
-
+                
                 HStack {
                     Image("Vector-2")
                         .resizable()
@@ -59,7 +61,10 @@ struct AuthorizationView: View {
                         .padding(.leading, 7)
                         .padding(.trailing, 7)
                     
-                    TextField("Password", text: $email)
+                    TextField("Password", text: $authorizationViewModel.password)
+                        .foregroundStyle(.white)
+                        .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
+//                        .foregroundStyle(Color(hex: "#5E667B") ?? .gray)
                     
                     
                     Image("mdi_eye")
@@ -67,21 +72,27 @@ struct AuthorizationView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 24, height: 24)
                         .padding(.trailing, 7)
-                    
                 }
                 .padding()
                 .background(
-
                     RoundedRectangle(cornerRadius: 50)
                         .stroke(lineWidth: 1)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color(hex: "#3D4353") ?? .gray)
                 )
                 .padding()
                 
                 Button {
-                    
+                    if signIn {
+                        Task {
+                            try await authorizationViewModel.signInWithEmail()
+                        }
+                    }else{
+                        Task {
+                            try await authorizationViewModel.signUpWithEmail()
+                        }
+                    }
                 } label: {
-                    Text("CONTINUE")
+                    Text(signIn ? "SIGN IN" : "SIGN UP")
                         .font(.custom("Montserrat-Bold", size: 17))
                         .foregroundStyle(.white)
                         .padding(20)
@@ -101,34 +112,25 @@ struct AuthorizationView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding(.horizontal)
                 
-                Button {
-                    
-                } label: {
-                    HStack {
-                        Image("Vector")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 24, height: 24)
-                            .padding(.trailing, 7)
-                        
-                        
-                        Text("LOGIN WITH APPLE id")
-                            .font(.custom("Montserrat-Bold", size: 17))
-                            .foregroundStyle(.white)
-                        
+                AppleSignInButton()
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 62)
+                    .mask(RoundedRectangle(cornerRadius: 50))
+                    .onTapGesture {
+                        authorizationViewModel.startSignInWithAppleFlow()
                     }
-                    .padding(20)
-                    .frame(width: UIScreen.main.bounds.width / 1.1)
-                    .background {
-                        RoundedRectangle(cornerRadius: 50)
-                            .stroke(lineWidth: 2)
-                            .foregroundStyle(.white)
-                    }
+                    .padding()
+                
+                if authorizationViewModel.isLoading {
+                    ProgressView()
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 50))
-                .padding(.top, 20)
+                
                 
                 Button {
+                    Task {
+                        try await authorizationViewModel.signInWithGoogle()
+                    }
                     
                 } label: {
                     
@@ -140,8 +142,8 @@ struct AuthorizationView: View {
                             .padding(.trailing, 7)
                         
                         
-                        Text("LOGIN WITH google")
-                            .font(.custom("Montserrat-Bold", size: 17))
+                        Text("Sign in with Google")
+                            .font(.custom("Montserrat-Bold", size: 18))
                             .foregroundStyle(.white)
                         
                     }
@@ -157,14 +159,16 @@ struct AuthorizationView: View {
                 .padding(.top, 10)
                 
                 HStack {
-                    Text("Don’t have an account?")
-                        .foregroundStyle(.white)
+                    Text(signIn ? "Don’t have an account?" : "Already have an account?")
                     Button {
-                        //
+                        signIn.toggle()
                     } label: {
-                        Text("Sign Up")
+                        Text(signIn ? "Sign Up" : "Sign in" )
+                            .foregroundStyle(Color(hex: "#38A9CF") ?? .blue)
                     }
                 }
+                .foregroundStyle(.white)
+                .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
                 .padding()
                 .padding(.top, 10)
                 
@@ -173,8 +177,6 @@ struct AuthorizationView: View {
                         //
                     } label: {
                         Text("Terms of Use")
-                            .font(.custom("", size: 11))
-                            .foregroundStyle(.gray)
                             .underline()
                     }.padding(.horizontal, 10)
                     
@@ -182,12 +184,12 @@ struct AuthorizationView: View {
                         //
                     } label: {
                         Text("Privacy Policy")
-                            .font(.custom("", size: 11))
-                            .foregroundStyle(.gray)
                             .underline()
                     }
                     .padding(.horizontal, 10)
                 }
+                .foregroundStyle(Color(hex: "#A3A3A3") ?? .gray)
+                .font(.custom("Montserrat-Regular", size: 11))
                 .padding(.top)
             }
             .padding(.top)
@@ -198,4 +200,5 @@ struct AuthorizationView: View {
 
 #Preview {
     AuthorizationView()
+        .environmentObject(AuthorizationViewModel())
 }

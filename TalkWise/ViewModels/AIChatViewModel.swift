@@ -31,7 +31,10 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     @Published var messageIsSend = false
     @Published var showTranslateWord = false
     @Published var translateWord = ""
+    @Published var translatedWord = ""
+    @Published var translateOnlyWord = true
     
+    // Сюди треба додати вибрану тему
     @Published var messagesHistory: [[String: String]] = [
         ["role": "system", "content": "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."]
     ]
@@ -309,7 +312,7 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     }
     
     
-    private func speak(_ text: String) {
+    func speak(_ text: String) {
         print("🔊 Озвучую: \(text)")
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")

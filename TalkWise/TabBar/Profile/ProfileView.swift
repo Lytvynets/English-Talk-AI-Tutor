@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     
     @EnvironmentObject var appRouter: AppRouter
+    @EnvironmentObject var authorizationViewModel: AuthorizationViewModel
 
     
     var body: some View {
@@ -289,10 +290,6 @@ struct ProfileView: View {
                 }
                 
                 
-                
-                
-                
-                
                 HStack {
                     
                     Image("Vector 167098623")
@@ -320,11 +317,49 @@ struct ProfileView: View {
                     
                 }
                 .padding(.trailing, 10)
+                
+                
+                Button {
+                    Task {
+                       try authorizationViewModel.signOut()
+                        authorizationViewModel.showAuthorizationView = true
+                    }
+                } label: {
+                    Text("Log out")
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 50)
+                                .stroke(lineWidth: 1)
+                                .foregroundStyle(.white)
+                        )
+                }
+                .padding(.vertical)
+                
+                
+                Button {
+                    //
+                } label: {
+                    Text("Delete account")
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 50)
+                                .stroke(lineWidth: 1)
+                                .foregroundStyle(.red)
+                        )
+                }
+                
+                
             }.padding()
             
             
         }
-            .padding(.top, 100)
+        .padding(.top, 100)
+        .padding(.bottom, 75)
+        .scrollIndicators(.hidden)
             
         }
         .ignoresSafeArea()

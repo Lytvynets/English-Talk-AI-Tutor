@@ -48,16 +48,26 @@ struct WordsView: View {
                 switch wordsViewModel.segments {
                 case .flashcards:
                     ScrollView {
-                        WordCell()
-                            .onTapGesture {
-                                appRouter.goTo(.wordDetailView)
-                            }
-                        WordCell()
-                        WordCell()
-                        WordCell()
-                        WordCell()
-                        WordCell()
-                        WordCell()
+                        //ForEach(wordsViewModel.savedWords, id: \.self) { word in
+                        ForEach(Array(wordsViewModel.savedWords.enumerated()), id: \.element) { index, word in
+                            WordCell(word: word.components(separatedBy: " - ").first ?? "")
+                                .onTapGesture {
+                                   // wordsViewModel.selectedWord = word
+                                    wordsViewModel.selectedIndex = index
+                                    appRouter.goTo(.wordDetailView)
+                                }
+                        }
+                        
+//                        WordCell()
+//                            .onTapGesture {
+//                                appRouter.goTo(.wordDetailView)
+//                            }
+//                        WordCell()
+//                        WordCell()
+//                        WordCell()
+//                        WordCell()
+//                        WordCell()
+//                        WordCell()
                     }
                     .padding(.horizontal)
                 case .tests:
@@ -171,6 +181,9 @@ struct WordsView: View {
             .padding(.top, 73)
         }
         .ignoresSafeArea()
+        .onAppear {
+            wordsViewModel.fetchSavedWords()
+        }
     }
 }
 

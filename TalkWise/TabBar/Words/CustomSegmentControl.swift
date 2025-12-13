@@ -26,7 +26,7 @@ struct CustomSegmentControl: View {
             } label: {
                 Text("Flashcards")
                     .foregroundStyle(.white)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
                     .background {wordsViewModel.segments == .flashcards ?
                         LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
@@ -49,7 +49,7 @@ struct CustomSegmentControl: View {
             } label: {
                 Text("Tests")
                     .foregroundStyle(.white)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
                     .background {wordsViewModel.segments == .tests ?
                         LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
@@ -66,10 +66,14 @@ struct CustomSegmentControl: View {
 
         }
         .font(.custom("Montserrat-Bold", size: 14))
-        .padding(8)
+        .padding(7)
         .frame(maxWidth: .infinity)
         .background(
             BlurView(style: .systemUltraThinMaterialDark)
+                .overlay(content: {
+                    Color.black
+                        .opacity(0.3)
+                })
                // .opacity(0.8)
         )
         .clipShape(RoundedRectangle(cornerRadius: 28))
