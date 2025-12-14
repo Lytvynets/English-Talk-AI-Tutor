@@ -15,9 +15,12 @@ class WordsViewModel: ObservableObject {
     @Published var questionsCount = 5
     @Published var progress: CGFloat = 0.0
     @Published var savedWords: [String] = []
+    @Published var learnedWords: [String] = []
     @Published var selectedWord: String = ""
     @Published var selectedWordImgUrl: URL?
     @Published var selectedIndex = 0
+    @Published var showAlert = false
+    @Published var wordToDelete = ""
     
     
     func saveWord(_ word: String) async throws {
@@ -78,7 +81,7 @@ class WordsViewModel: ObservableObject {
     }
     
     
-    private func loadWords() async throws -> [String] {
+    private func loadWords(wordKey: String) async throws -> [String] {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
         }
@@ -89,7 +92,7 @@ class WordsViewModel: ObservableObject {
             .getDocument()
         
         let data = doc.data()
-        let words = data?["words"] as? [String] ?? []
+        let words = data?[wordKey] as? [String] ?? []
         
         return words
     }
@@ -98,7 +101,7 @@ class WordsViewModel: ObservableObject {
     func fetchSavedWords() {
         Task {
             do {
-                let words = try await loadWords()
+                let words = try await loadWords(wordKey: "words")
                 await MainActor.run {
                     self.savedWords = words
                 }
@@ -107,5 +110,20 @@ class WordsViewModel: ObservableObject {
             }
         }
     }
+    
+    
+    func fetchLearnedWords() {
+        Task {
+            do {
+                let words = try await loadWords(wordKey: "LearnedWords")
+                await MainActor.run {
+                    self.learnedWords = words
+                }
+            } catch {
+                print("Error loading words: \(error)")
+            }
+        }
+    }
+
     
 }

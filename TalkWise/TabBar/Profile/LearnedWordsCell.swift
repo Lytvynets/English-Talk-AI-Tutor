@@ -9,9 +9,12 @@ import SwiftUI
 
 struct LearnedWordsCell: View {
     
+    @EnvironmentObject var wordsViewModel: WordsViewModel
+    @EnvironmentObject var aIChatViewModel: AIChatViewModel
     @State var showDeleteButton = false
     @State private var offset: CGFloat = 0
     @GestureState private var dragOffset: CGFloat = 0
+    @State var word: String
     
     var body: some View {
         
@@ -24,7 +27,7 @@ struct LearnedWordsCell: View {
                 
                 
                 Button {
-                    print("")
+                    aIChatViewModel.speak(word.components(separatedBy: " - ").first ?? "")
                 } label: {
                     Image("gdfsddfdsfdsf")
                         .padding()
@@ -35,43 +38,47 @@ struct LearnedWordsCell: View {
                                            endPoint: .trailing)
                         )
                         .clipShape(.circle)
+                        .shadow(color: .white.opacity(0.3), radius: 8, x: 0, y: 7)
+
                 }
                 
-                Text("Apple")
+                Text(word)
                     .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive16))
                     .foregroundStyle(.white)
                 
                 Spacer()
                 
             }
-            .padding()
+            .padding(10)
             .background(
                 BlurView(style: .systemUltraThinMaterialDark)
                     .overlay(content: {
                         Color.black
                             .opacity(0.15)
                     })
-//                    .opacity(0.7)
             )
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .gesture(
-                             DragGesture()
-                                 .updating($dragOffset) { value, state, _ in
-                                     if value.translation.width < 0 {
-                                         state = value.translation.width
-                                     }
-                                 }
-                                 .onEnded(onDragEnded)
-                         )
+                DragGesture()
+                    .updating($dragOffset) { value, state, _ in
+                        if value.translation.width < 0 {
+                            state = value.translation.width
+                        }
+                    }
+                    .onEnded(onDragEnded)
+            )
+            .onTapGesture {
+                withAnimation {
+                    showDeleteButton = false
+                }
+            }
             
             
             if showDeleteButton {
-                
                 HStack {
-                    Image("gdfsddfdsfdsf")
+                    Image("hgoijergoiwejfiojewfe")
                 }
-                .padding(20)
-                .padding()
+                .padding(27)
                 .background(
                     LinearGradient(colors: [Color(Color(hex: "#A63B4D") ?? .blue),
                                             Color(Color(hex: "#822933") ?? .blue)],
@@ -79,8 +86,11 @@ struct LearnedWordsCell: View {
                                    endPoint: .trailing)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 15))
+                .onTapGesture {
+                    wordsViewModel.showAlert = true
+                    wordsViewModel.wordToDelete = word
+                }
             }
-            
         }
         .animation(.spring(), value: offset)
         
@@ -103,5 +113,5 @@ struct LearnedWordsCell: View {
 
 
 #Preview {
-    LearnedWordsCell()
+    LearnedWordsCell(word: "Test")
 }

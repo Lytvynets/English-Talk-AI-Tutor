@@ -10,8 +10,10 @@ import StoreKit
 
 class InAppPurchaseViewModel: ObservableObject {
     
+    @Published var selectedProductId = AppDefaults.weekly
     @Published var trialIsUsed = false
     @Published var products: [Product] = []
+    @Published var presentErrorAlert = false
     
     func fetchProducts() async {
         do {
@@ -108,12 +110,26 @@ class InAppPurchaseViewModel: ObservableObject {
     func getPrice(productID: String, products: [Product]) -> String {
         for product in products {
             if product.id == productID {
-                return "\(product.price)"
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .currency
+                formatter.locale = product.priceFormatStyle.locale
+
+                return formatter.string(from: product.price as NSDecimalNumber) ?? "-"
             }
         }
         return "-"
     }
     
+    
+//    func getPrice(productID: String, products: [Product]) -> String {
+//        for product in products {
+//            if product.id == productID {
+//                return "\(product.price)"
+//            }
+//        }
+//        return "-"
+//    }
+//    
     
     func restorePurchases() async {
         do {

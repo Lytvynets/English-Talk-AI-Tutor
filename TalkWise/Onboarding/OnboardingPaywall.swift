@@ -9,6 +9,7 @@ import SwiftUI
 
 struct OnboardingPaywall: View {
     
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
     @EnvironmentObject var onboardingViewModel: OnboardingViewModel
     @State var trialIsOn = false
     
@@ -66,19 +67,19 @@ struct OnboardingPaywall: View {
                 VStack {
                     
                     Text("Unlock your best English yet")
-                        .font(.custom("Montserrat-Bold", size: 22))
+                        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive22))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
                         .padding()
                     
-                    Text("Unlock unlimited AI conversations, themed lessons, and smart learning tools.  Make daily practice a part of your life.")
-                        .font(.custom("Montserrat-Light", size: 14))
+                    Text("Unlock unlimited AI conversations, themed \nlessons, and smart learning tools. \nMake daily practice a part of your life.")
+                        .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive14))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
                     
                     
-                    Text("$7,99 per week")
-                        .font(.custom("Montserrat-Bold", size: 18))
+                    Text("\(trialIsOn ? inAppPurchaseViewModel.getPrice(productID: AppDefaults.freeTrailWeekly, products: inAppPurchaseViewModel.products) : inAppPurchaseViewModel.getPrice(productID: AppDefaults.weekly, products: inAppPurchaseViewModel.products)) per week")
+                        .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive18))
                         .foregroundStyle(LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
                                                                  Color(Color(hex: "#38A9CF") ?? .blue)],
                                                         startPoint: .leading,
@@ -88,31 +89,57 @@ struct OnboardingPaywall: View {
                     
                     HStack {
                         
-                        Text("Enable 7 days Free Trial")
-                            .font(.custom("Montserrat-Light", size: 15))
-                            .multilineTextAlignment(.leading)
+                        //                        Text("Enable 7 days Free Trial")
+                        //                            .font(.custom("Montserrat-Light", size: 15))
+                        //                            .multilineTextAlignment(.leading)
+                        //                            .foregroundStyle(.white)
+                        
+                        
+                        Toggle("Enable 7 days Free Trial", isOn: $trialIsOn)
                             .foregroundStyle(.white)
-                        
-                        
-                        Toggle("", isOn: $trialIsOn)
+                            .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive17))
                             .tint(LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
                                                           Color(Color(hex: "#38A9CF") ?? .blue)],
                                                  startPoint: .leading,
                                                  endPoint: .trailing))
+                            .onChange(of: trialIsOn) { newValue in
+                                if newValue {
+                                    if inAppPurchaseViewModel.selectedProductId == AppDefaults.weekly {
+                                        inAppPurchaseViewModel.selectedProductId = AppDefaults.freeTrailWeekly
+                                    }
+                                }else{
+                                    if inAppPurchaseViewModel.selectedProductId == AppDefaults.freeTrailWeekly {
+                                        inAppPurchaseViewModel.selectedProductId = AppDefaults.weekly
+                                    }
+                                }
+                            }
                     }
                     .padding(.bottom)
                     
                     Button {
-                        print("")
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                        Task {
+                            if let product = inAppPurchaseViewModel.products.first(where: {$0.id == inAppPurchaseViewModel.selectedProductId }) {
+                                await inAppPurchaseViewModel.purchase(product) { result in
+                                    switch result {
+                                    case .success(_):
+                                        onboardingViewModel.showPaywall = false
+                                    case .failure(_):
+                                        inAppPurchaseViewModel.presentErrorAlert = true
+                                    }
+                                }
+                            }
+                        }
                     } label: {
                         
                         VStack {
-                            Text("Subscribe for $7,99/week")
-                                .font(.custom("Montserrat-Bold", size: 22))
+                            Text("SUBSCRIBE FOR \(trialIsOn ? inAppPurchaseViewModel.getPrice(productID: AppDefaults.freeTrailWeekly, products: inAppPurchaseViewModel.products) : inAppPurchaseViewModel.getPrice(productID: AppDefaults.weekly, products: inAppPurchaseViewModel.products))/week")
+                                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                 .foregroundStyle(.white)
                             
                             Text("Auto renewable. Cancel any time")
-                                .font(.custom("Montserrat-Light", size: 14))
+                                .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive12))
                                 .foregroundStyle(.white)
                         }
                         .padding()
@@ -139,7 +166,9 @@ struct OnboardingPaywall: View {
     }
 }
 
+
 #Preview {
     OnboardingPaywall()
         .environmentObject(OnboardingViewModel())
+        .environmentObject(InAppPurchaseViewModel())
 }

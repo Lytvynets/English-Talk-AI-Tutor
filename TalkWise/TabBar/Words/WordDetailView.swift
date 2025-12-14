@@ -11,6 +11,7 @@ import Kingfisher
 
 struct WordDetailView: View {
     
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var aIChatViewModel: AIChatViewModel
     @EnvironmentObject var wordsViewModel: WordsViewModel
     @EnvironmentObject var appRouter: AppRouter
@@ -18,6 +19,7 @@ struct WordDetailView: View {
     @State var imageURL: URL?
     @State var example = ""
     @State var transcription = ""
+    @State var translation = ""
     
     var body: some View {
         
@@ -40,8 +42,19 @@ struct WordDetailView: View {
                             .font(.custom("Montserrat-Medium", size: 19))
                             .padding(.vertical)
                         
-                        Text(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").last ?? "")
+                        
+                        
+                        Text(translation)
                             .font(.custom("Montserrat-Medium", size: 19))
+                        
+                        
+//                        Text(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").last ?? "")
+//                            .font(.custom("Montserrat-Medium", size: 19))
+                        
+                        
+                        
+                        
+                        
                         
                         Button {
                             aIChatViewModel.speak(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "")
@@ -82,9 +95,10 @@ struct WordDetailView: View {
                             }
                             
                             Task {
-                                try await wordsViewModel.deleteWord(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "")
-                                appRouter.goBack()
+                                try await wordsViewModel.deleteWord(wordsViewModel.savedWords[wordsViewModel.selectedIndex])
                                 wordsViewModel.savedWords.remove(at: wordsViewModel.selectedIndex)
+                                appRouter.goBack()
+                               
                             }
                         } label: {
                             Text("LEARNED")
@@ -137,6 +151,17 @@ struct WordDetailView: View {
     
     
     private func loadData() {
+        
+        OpenAITranslator.translate(
+            text: wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "",
+            to: settingsViewModel.selectedLanguages 
+        ) { translatedText in
+            DispatchQueue.main.async {
+                translation = translatedText ?? "-"
+            }
+        }
+    
+        
         OpenAITranslator.makeIPA(for: wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "") { transcription in
             self.transcription = transcription ?? "[-]"
         }

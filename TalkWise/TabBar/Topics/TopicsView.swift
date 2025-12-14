@@ -11,7 +11,9 @@ struct TopicsView: View {
     
     @EnvironmentObject var topicViewModel: TopicViewModel
     @EnvironmentObject var appRouter: AppRouter
-
+    @EnvironmentObject var aIChatViewModel: AIChatViewModel
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
+    
     
     var body: some View {
         
@@ -26,7 +28,7 @@ struct TopicsView: View {
                     .frame(height: 200)
                 
                 Spacer()
-
+                
             }
             
             VStack {
@@ -48,11 +50,14 @@ struct TopicsView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .padding(.vertical)
+                        .onTapGesture {
+                            settingsViewModel.showPaywall = true
+                        }
                     
                     HStack {
                         
                         Image("Vector 167098623")
-                          //  .padding(.leading, 5)
+                        //  .padding(.leading, 5)
                         
                         Text("Available messages")
                             .font(.custom("Montserrat-Medium", size: 16))
@@ -72,14 +77,25 @@ struct TopicsView: View {
                                                startPoint: .leading,
                                                endPoint: .trailing)
                             }
-                    
-                    .clipShape(RoundedRectangle(cornerRadius: 50))
+                        
+                            .clipShape(RoundedRectangle(cornerRadius: 50))
                         
                     }
                     .padding(.horizontal, 10)
                     
                     ForEach(Array(topicViewModel.topics.enumerated()), id: \.offset) { index, topic in
                         TopicCell(title: topic.title, iconName: topic.iconName)
+                            .onTapGesture {
+                                topicViewModel.selectedTopic = topic.title
+                                aIChatViewModel.messagesHistory = [
+                                    ["role": "system", "content": topic.prompt]
+                                ]
+                                
+                                appRouter.goTo(.freeConversationView)
+                                
+                                
+                                print("\(aIChatViewModel.messagesHistory)")
+                            }
                     }
                     
                 }
@@ -125,18 +141,36 @@ struct TopicsView: View {
                 .padding()
                 .padding(.bottom, 100)
                 .onTapGesture {
-                    appRouter.goTo(.freeConversationView)
+                    if  let freeTopic = topicViewModel.freeTopics.first {
+                        topicViewModel.selectedTopic = freeTopic.title
+                        aIChatViewModel.messagesHistory = [
+                            ["role": "system", "content": freeTopic.prompt]
+                        ]
+                        
+                        appRouter.goTo(.freeConversationView)
+                        
+                        
+                        print("\(aIChatViewModel.messagesHistory)")
+                    }
+                    
+                    
+                    
+                    // appRouter.goTo(.freeConversationView)
                 }
                 
             }
             
-
+            
         }
         .ignoresSafeArea()
     }
 }
 
 #Preview {
+    @Previewable @StateObject var settingsViewModel = SettingsViewModel()
     TopicsView()
-        .environmentObject(TopicViewModel())
+        .environmentObject(TopicViewModel(settings: settingsViewModel))
+        .environmentObject(SettingsViewModel())
+        .environmentObject(AppRouter())
+        .environmentObject(AIChatViewModel())
 }

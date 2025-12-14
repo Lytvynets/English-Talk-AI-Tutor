@@ -13,6 +13,7 @@ class TestViewModel: ObservableObject {
     @Published var testCompleted = false
     @Published var correctAnswers = 0
     @Published var incorrectAnswers = 0
+    @Published var showAlert = false
 
     
     

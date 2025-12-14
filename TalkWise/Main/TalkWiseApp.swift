@@ -13,18 +13,30 @@ import Firebase
 struct TalkWiseApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+    
     @ObservedObject var onboardingViewModel = OnboardingViewModel()
     @ObservedObject var customTabBarObserver = CustomTabBarObserver()
-    @ObservedObject var topicViewModel = TopicViewModel()
+    @StateObject var topicViewModel: TopicViewModel
     @ObservedObject var wordsViewModel = WordsViewModel()
     @ObservedObject var appRouter = AppRouter()
     @ObservedObject var aIChatViewModel = AIChatViewModel()
     @ObservedObject var authorizationViewModel = AuthorizationViewModel()
     @ObservedObject var testViewModel = TestViewModel()
+    @StateObject var settingsViewModel = SettingsViewModel()
+    @ObservedObject var simpleTimerViewModel = SimpleTimerViewModel()
+    @ObservedObject var inAppPurchaseViewModel = InAppPurchaseViewModel()
     
     @State var savedWords: [String] = []
     @State var isActive = false
+    
+    init() {
+         let settingsVM = SettingsViewModel()
+         _settingsViewModel = StateObject(wrappedValue: settingsVM)
+         _topicViewModel = StateObject(
+             wrappedValue: TopicViewModel(settings: settingsVM)
+         )
+     }
+    
     
     var body: some Scene {
         
@@ -36,11 +48,13 @@ struct TalkWiseApp: App {
                     
                     OnboardingView()
                         .environmentObject(onboardingViewModel)
+                        .environmentObject(inAppPurchaseViewModel)
                     
                 }else {
                     if onboardingViewModel.showPaywall {
                         OnboardingPaywall()
                             .environmentObject(onboardingViewModel)
+                            .environmentObject(inAppPurchaseViewModel)
                         
                     }else {
                         NavigationStack(path: $appRouter.path) {
@@ -68,6 +82,12 @@ struct TalkWiseApp: App {
                                 }
                                 
                             }
+                            .sheet(isPresented: $settingsViewModel.showTranslateLanguageView) {
+                                TranslateLanguageView()
+                            }
+                            .fullScreenCover(isPresented: $settingsViewModel.showPaywall) {
+                                InAppPaywallView()
+                            }
                             .navigationDestination(for: AppRoute.self) { route in
                                 switch route {
                                 case .wordDetailView:
@@ -88,11 +108,19 @@ struct TalkWiseApp: App {
                         .environmentObject(aIChatViewModel)
                         .environmentObject(authorizationViewModel)
                         .environmentObject(testViewModel)
+                        .environmentObject(settingsViewModel)
+                        .environmentObject(simpleTimerViewModel)
+                        .environmentObject(inAppPurchaseViewModel)
                         
                     }
                 }
             }else{
                 LoadingView()
+                    .onAppear {
+                        Task {
+                           await inAppPurchaseViewModel.fetchProducts()
+                        }
+                    }
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                             isActive = true
@@ -109,9 +137,17 @@ struct TalkWiseApp: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
+    @AppStorage("dailyNotificationsEnabled")
+    private var notificationsEnabled: Bool = true
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        print("TEST")
+        
+        if notificationsEnabled {
+            NotificationManager.shared.requestPermission()
+            NotificationManager.shared.scheduleDailyNotification()
+        }
+        
         return true
     }
     

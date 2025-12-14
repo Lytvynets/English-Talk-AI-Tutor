@@ -11,12 +11,16 @@ import Speech
 
 struct FreeChatView: View {
     
+    @EnvironmentObject var topicViewModel: TopicViewModel
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var wordsViewModel: WordsViewModel
     @EnvironmentObject var viewModel: AIChatViewModel
+    @EnvironmentObject var simpleTimerViewModel: SimpleTimerViewModel
+    
     @Binding var savedWords: [String]
     
     var body: some View {
-        CustomNavigationBar(title: "Free Conversation", imageName: "Vector4324234", customNavBarState: .withBackButton) {
+        CustomNavigationBar(title: topicViewModel.selectedTopic, imageName: "Vector4324234", customNavBarState: .withBackButton) {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
@@ -26,8 +30,8 @@ struct FreeChatView: View {
                                 //треба перевірити
                                 let isFirstAssistantMessage = index == 0 && message["role"] != "user"
                                 let displayText = isFirstAssistantMessage
-                                    ? "Hello, I’m fine. How can I help you?"
-                                    : (message["content"] ?? "nil")
+                                ? "Hello, I’m fine. How can I help you?"
+                                : (message["content"] ?? "nil")
                                 //треба перевірити
                                 
                                 
@@ -60,7 +64,7 @@ struct FreeChatView: View {
                                             .padding(.leading, 44)
                                             .onTapGesture {
                                                 Task {
-                                                  try await wordsViewModel.saveWord("\(viewModel.translateWord) - \(viewModel.translatedWord)" )
+                                                    try await wordsViewModel.saveWord("\(viewModel.translateWord) - \(viewModel.translatedWord)" )
                                                 }
                                             }
                                         }
@@ -81,8 +85,8 @@ struct FreeChatView: View {
                                                 )
                                                 //треба перевірити
                                                 
-//                                                WordTapView(text: message["content"] ?? "nil",
-//                                                            savedWords: $savedWords)
+                                                //                                                WordTapView(text: message["content"] ?? "nil",
+                                                //                                                            savedWords: $savedWords)
                                                 
                                                 
                                             }
@@ -115,11 +119,11 @@ struct FreeChatView: View {
                                         }
                                         .onTapGesture {
                                             //треба перевірити
-//                                            OpenAITranslator.translate(text: message["content"] ?? "nil", to: "ukrainian") { translatedText in
+                                            //                                            OpenAITranslator.translate(text: message["content"] ?? "nil", to: "ukrainian") { translatedText in
                                             //треба перевірити
                                             OpenAITranslator.translate(
                                                 text: displayText,
-                                                to: "ukrainian"
+                                                to: settingsViewModel.selectedLanguages //"ukrainian"
                                             ) { translatedText in
                                                 DispatchQueue.main.async {
                                                     viewModel.translateWord = ""
@@ -141,18 +145,95 @@ struct FreeChatView: View {
                 .padding(.bottom, 75)
                 
                 VStack {
+                    
+                   
+                    
                     Spacer()
                     ZStack {
-                        TextField("Write your message", text: $viewModel.transcribedText)
-                            .padding()
-                            .padding(.vertical, 5)
-                            .background(Color(hex: "#232A3A"))
-                            .clipShape(RoundedRectangle(cornerRadius: 30))
-                            .padding()
+                        
+                        
+                        Group {
+                            if viewModel.isRecording {
+                                // Заглушка під час запису
+                                HStack {
+                                    
+                                    HStack {
+                                        Circle()
+                                            .fill(
+                                                LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue), Color(Color(hex: "#38A9CF") ?? .blue)], startPoint: .leading, endPoint: .trailing)
+                                            )
+                                            .frame(width: 10, height: 10)
+                                        
+                                        Text(simpleTimerViewModel.timeString)
+                                            .foregroundStyle(.white)
+                                            .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive13))
+                                        
+                                    }
+                            
+                                    
+                                    Text("Recording...")
+                                        .foregroundStyle(.gray)
+
+                                    Spacer()
+                                }
+                                .padding()
+                                .padding(.vertical, 5)
+                                .background(Color(hex: "#232A3A"))
+                                .clipShape(RoundedRectangle(cornerRadius: 30))
+                                .padding()
+                            
+                            } else {
+                                // Звичайний TextField
+                                TextField("Write your message", text: $viewModel.transcribedText)
+                                    .foregroundStyle(.white)
+                                    .padding()
+                                    .padding(.vertical, 5)
+                                    .background(Color(hex: "#232A3A"))
+                                    .clipShape(RoundedRectangle(cornerRadius: 30))
+                                    .padding()
+                            }
+                        }
+                        
+                   
+//                        if !viewModel.isRecording {
+//                            TextField("Write your message", text: $viewModel.transcribedText)
+//                                .foregroundStyle(.white)
+//                                .padding()
+//                                .padding(.vertical, 5)
+//                                .background(Color(hex: "#232A3A"))
+//                                .clipShape(RoundedRectangle(cornerRadius: 30))
+//                                .padding()
+//                        }
+                        
+                        
+                       
                         
                         HStack {
+                            
+//                            if viewModel.isRecording {
+//                                HStack {
+//                                    Circle()
+//                                        .fill(
+//                                            LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue), Color(Color(hex: "#38A9CF") ?? .blue)], startPoint: .leading, endPoint: .trailing)
+//                                        )
+//                                        .frame(width: 10, height: 10)
+//                                    
+//                                    Text(simpleTimerViewModel.timeString)
+//                                        .foregroundStyle(.white)
+//                                        .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive13))
+//                                    
+//                                }
+//                                .padding(.leading, 35)
+//                            }
+                            
                             Spacer()
                             Button(action: {
+                                if viewModel.isRecording {
+                                    simpleTimerViewModel.stop()
+                                }else{
+                                    simpleTimerViewModel.reset()
+                                    simpleTimerViewModel.start()
+                                }
                                 viewModel.toggleRecording()
                             }) {
                                 Image(viewModel.isRecording ? "icon-park-solid_voicee" : "icon-park-solid_voice")
@@ -167,6 +248,7 @@ struct FreeChatView: View {
                         }
                         .padding(.trailing)
                     }
+                 
                 }
                 .padding(.bottom)
             }
@@ -177,7 +259,12 @@ struct FreeChatView: View {
 
 
 #Preview {
+    @Previewable @StateObject var settingsViewModel = SettingsViewModel()
     @Previewable @State var savedWords: [String] = []
     FreeChatView(savedWords: $savedWords)
         .environmentObject(AIChatViewModel())
+        .environmentObject(SimpleTimerViewModel())
+        .environmentObject(WordsViewModel())
+        .environmentObject(SettingsViewModel())
+        .environmentObject(TopicViewModel(settings: settingsViewModel))
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WordTapView: View {
     
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var viewModel: AIChatViewModel
     let text: String
     @Binding var savedWords: [String]
@@ -28,7 +29,9 @@ struct WordTapView: View {
                             viewModel.showTranslateWord = true
                             viewModel.translateWord = "\(word)"
                             viewModel.translatedWord = ""
-                            OpenAITranslator.translate(text: viewModel.translateWord, to: "ukrainian") { translatedText in
+                       /*     OpenAITranslator.translate(text: viewModel.translateWord, to: "ukrainian") {*/
+                            OpenAITranslator.translate(text: viewModel.translateWord, to: settingsViewModel.selectedLanguages) {
+                            translatedText in
                                 DispatchQueue.main.async {
                                     viewModel.translatedWord = translatedText ?? ""
                                 }

@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Speech
+import SwiftUI
 
 //struct ChatMessage: Identifiable {
 //    let id = UUID()
@@ -17,7 +18,7 @@ import Speech
 
 
 class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
-    
+        
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))!
     private var audioEngine = AVAudioEngine()
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
@@ -33,10 +34,16 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     @Published var translateWord = ""
     @Published var translatedWord = ""
     @Published var translateOnlyWord = true
+//    static var prompt = "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."
     
     // Сюди треба додати вибрану тему
+//    @Published var messagesHistory: [[String: String]] = [
+//        ["role": "system", "content": "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."]
+//    ]
+    
+    
     @Published var messagesHistory: [[String: String]] = [
-        ["role": "system", "content": "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."]
+        ["role": "system", "content": "prompt"]
     ]
     
     
@@ -130,7 +137,7 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     func sendToOpenAI() {
         guard !transcribedText.isEmpty else { return }
 
-        // Додаємо останнє повідомлення користувача до історії
+        // Додаємо останнє повідомлення користувача до історії need to add user id
         messagesHistory.append(["role": "user", "content": transcribedText])
 
         let payload: [String: Any] = [
@@ -264,7 +271,8 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     
     func speakWithOpenAITTS(text: String, completion: @escaping (URL?) -> Void) {
         let url = URL(string: "https://api.openai.com/v1/audio/speech")!
-        
+        let voice = UserDefaults.standard.string(forKey: "selectedVoice") ?? "nova"
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(AppDefaults.openAIKey)", forHTTPHeaderField: "Authorization")
@@ -273,7 +281,8 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
         let body: [String: Any] = [
             "model": "tts-1",
             "input": text,
-            "voice": "nova", // або nova, echo, alloy...
+            "voice": voice,
+//            "voice": "nova", // або nova, echo, alloy...
             "response_format": "mp3"
         ]
         
