@@ -15,6 +15,7 @@ class InAppPurchaseViewModel: ObservableObject {
     @Published var products: [Product] = []
     @Published var presentErrorAlert = false
     @Published var isLoading = false
+    @Published var isSubscribed = false
     
     func fetchProducts() async {
         do {

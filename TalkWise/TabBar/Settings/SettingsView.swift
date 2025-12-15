@@ -169,13 +169,15 @@ struct SettingsView: View {
                             }
                     }
                     
-                    Image("Group 19647")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(.vertical)
-                        .onTapGesture {
-                            settingsViewModel.showPaywall = true
-                        }
+                    if !inAppPurchaseViewModel.isSubscribed {
+                        Image("Group 19647")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding(.vertical)
+                            .onTapGesture {
+                                settingsViewModel.showPaywall = true
+                            }
+                    }
                     
                     HStack {
                         Image("ix_restore")

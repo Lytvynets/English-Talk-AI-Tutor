@@ -48,6 +48,8 @@ struct TalkWiseApp: App {
                         .environmentObject(onboardingViewModel)
                         .environmentObject(inAppPurchaseViewModel)
                         .onAppear {
+                            UserDefaults.standard.set(true, forKey: "didSeeOnboarding")
+
                             @AppStorage("dailyNotificationsEnabled")
                             var notificationsEnabled: Bool = true
                             
@@ -62,7 +64,11 @@ struct TalkWiseApp: App {
                             .environmentObject(onboardingViewModel)
                             .environmentObject(inAppPurchaseViewModel)
                             .onDisappear {
-                                settingsViewModel.showTranslateLanguageView = true
+                                Task {
+                                    for sub in inAppPurchaseViewModel.products {
+                                        inAppPurchaseViewModel.isSubscribed = await inAppPurchaseViewModel.checkSubscriptionStatus(for: sub.id)
+                                    }
+                                }
                             }
                     }else {
                         NavigationStack(path: $appRouter.path) {
@@ -85,13 +91,29 @@ struct TalkWiseApp: App {
                                 
                                 if authorizationViewModel.showAuthorizationView {
                                     AuthorizationView()
+                                        .onDisappear {
+                                            let didSeeTranslateLanguageView = UserDefaults.standard.bool(forKey: "TranslateLanguageView")
+                                            if !didSeeTranslateLanguageView {
+                                                settingsViewModel.showTranslateLanguageView = true
+                                            }
+                                        }
                                 }
                             }
                             .sheet(isPresented: $settingsViewModel.showTranslateLanguageView) {
                                 TranslateLanguageView()
+                                    .onAppear {
+                                        UserDefaults.standard.set(true, forKey: "TranslateLanguageView")
+                                    }
                             }
                             .fullScreenCover(isPresented: $settingsViewModel.showPaywall) {
                                 InAppPaywallView()
+                                    .onDisappear {
+                                        Task {
+                                            for sub in inAppPurchaseViewModel.products {
+                                                inAppPurchaseViewModel.isSubscribed = await inAppPurchaseViewModel.checkSubscriptionStatus(for: sub.id)
+                                            }
+                                        }
+                                    }
                             }
                             .navigationDestination(for: AppRoute.self) { route in
                                 switch route {
@@ -117,11 +139,16 @@ struct TalkWiseApp: App {
                         .environmentObject(simpleTimerViewModel)
                         .environmentObject(inAppPurchaseViewModel)
                         .environmentObject(dailyTapCounter)
+                        .environmentObject(onboardingViewModel)
                     }
                 }
             }else{
                 LoadingView()
                     .onAppear {
+                        let didSeeOnboarding = UserDefaults.standard.bool(forKey: "didSeeOnboarding")
+                        if didSeeOnboarding {
+                            onboardingViewModel.showOnboarding = false
+                        }
                         Task {
                             await inAppPurchaseViewModel.fetchProducts()
                         }
@@ -129,6 +156,23 @@ struct TalkWiseApp: App {
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                             isActive = true
+                            
+                            Task {
+                                for sub in inAppPurchaseViewModel.products {
+                                    inAppPurchaseViewModel.isSubscribed = await inAppPurchaseViewModel.checkSubscriptionStatus(for: sub.id)
+                                }
+                                
+                                let didSeeOnboarding = UserDefaults.standard.bool(forKey: "didSeeOnboarding")
+                                if didSeeOnboarding {
+                                    if !inAppPurchaseViewModel.isSubscribed {
+                                        withAnimation(.easeInOut) {
+                                            onboardingViewModel.showPaywall = true
+                                        }
+                                       
+                                    }
+                                }
+                            }
+                            
                             if authorizationViewModel.isUserLoggedIn() {
                                 authorizationViewModel.showAuthorizationView = false
                             }
@@ -142,16 +186,9 @@ struct TalkWiseApp: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
-//    @AppStorage("dailyNotificationsEnabled")
-//    private var notificationsEnabled: Bool = true
-    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
-//        if notificationsEnabled {
-//            NotificationManager.shared.requestPermission()
-//            NotificationManager.shared.scheduleDailyNotification()
-//        }
         return true
     }
 }

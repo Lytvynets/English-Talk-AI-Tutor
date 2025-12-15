@@ -12,13 +12,15 @@ struct TestsView: View {
     @EnvironmentObject var appRouter: AppRouter
     @EnvironmentObject var wordsViewModel: WordsViewModel
     @EnvironmentObject var testViewModel: TestViewModel
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
+
     @State private var selectedOption: String?
     @State private var showResult = false
     @State private var currentIndex = 0
     
     
     var body: some View {
-        CustomNavigationBar(title: "Tests", showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton, onBack: {
+        CustomNavigationBar(title: "Tests", showLogo: inAppPurchaseViewModel.isSubscribed ? true : false, imageName: "Vector4324234", customNavBarState: .withBackButton, onBack: {
             testViewModel.showAlert = true
         } ) {
             ZStack {

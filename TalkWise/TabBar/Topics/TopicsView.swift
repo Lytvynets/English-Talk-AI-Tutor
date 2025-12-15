@@ -14,6 +14,8 @@ struct TopicsView: View {
     @EnvironmentObject var aIChatViewModel: AIChatViewModel
     @EnvironmentObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var dailyTapCounter: DailyTapCounter
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
+    @EnvironmentObject var onboardingViewModel: OnboardingViewModel
     
     
     var body: some View {
@@ -21,49 +23,60 @@ struct TopicsView: View {
             ZStack {
                 VStack {
                     ScrollView {
-                        Image("Group 19647")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .padding(.vertical)
-                            .onTapGesture {
-                                settingsViewModel.showPaywall = true
-                            }
                         
-                        HStack {
-                            Image("Vector 167098623")
-                            
-                            Text("Available messages")
-                                .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
-                                .foregroundStyle(.white)
-                                .padding(.leading, 7)
-                            
-                            Spacer()
-                            
-                            Text("\(dailyTapCounter.tapsToday)/3")
-                                .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive15))
-                                .foregroundStyle(.white)
-                                .padding()
-                                .padding(.horizontal, 10)
-                                .background {
-                                    LinearGradient(colors: [Color(Color(hex: "#24AF5C") ?? .blue),
-                                                            Color(Color(hex: "#14A9A4") ?? .blue)],
-                                                   startPoint: .leading,
-                                                   endPoint: .trailing)
+                        if !inAppPurchaseViewModel.isSubscribed {
+                            Image("Group 19647")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .padding(.vertical)
+                                .onTapGesture {
+                                    settingsViewModel.showPaywall = true
                                 }
-                            
-                                .clipShape(RoundedRectangle(cornerRadius: 50))
                         }
-                        .padding(.horizontal, 10)
+                        
+                        
+                        if !inAppPurchaseViewModel.isSubscribed {
+                            HStack {
+                                Image("Vector 167098623")
+                                
+                                Text("Available messages")
+                                    .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
+                                    .foregroundStyle(.white)
+                                    .padding(.leading, 7)
+                                
+                                Spacer()
+                                
+                                Text("\(dailyTapCounter.tapsToday)/3")
+                                    .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive15))
+                                    .foregroundStyle(.white)
+                                    .padding()
+                                    .padding(.horizontal, 10)
+                                    .background {
+                                        LinearGradient(colors: [Color(Color(hex: "#24AF5C") ?? .blue),
+                                                                Color(Color(hex: "#14A9A4") ?? .blue)],
+                                                       startPoint: .leading,
+                                                       endPoint: .trailing)
+                                    }
+                                
+                                    .clipShape(RoundedRectangle(cornerRadius: 50))
+                            }
+                            .padding(.horizontal, 10)
+                        }
                         
                         ForEach(Array(topicViewModel.topics.enumerated()), id: \.offset) { index, topic in
                             TopicCell(title: topic.title, iconName: topic.iconName)
                                 .onTapGesture {
-                                    topicViewModel.selectedTopic = topic.title
-                                    aIChatViewModel.messagesHistory = [
-                                        ["role": "system", "content": topic.prompt]
-                                    ]
+                                    if inAppPurchaseViewModel.isSubscribed {
+                                        topicViewModel.selectedTopic = topic.title
+                                        aIChatViewModel.messagesHistory = [
+                                            ["role": "system", "content": topic.prompt]
+                                        ]
+                                        
+                                        appRouter.goTo(.freeConversationView)
+                                    }else{
+                                        onboardingViewModel.showPaywall = true
+                                    }
                                     
-                                    appRouter.goTo(.freeConversationView)
                                 }
                         }
                     }

@@ -271,6 +271,7 @@ struct InAppPaywallView: View {
                 .foregroundStyle(.white)
             }
             .padding(.top, 100)
+            .padding(.bottom, 30)
         }
         .alert("Purchase Failed", isPresented: $inAppPurchaseViewModel.presentErrorAlert) {
             Button("OK", role: .cancel) { }

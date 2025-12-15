@@ -14,6 +14,7 @@ struct WordDetailView: View {
     @EnvironmentObject var aIChatViewModel: AIChatViewModel
     @EnvironmentObject var wordsViewModel: WordsViewModel
     @EnvironmentObject var appRouter: AppRouter
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
     
     @State var imageURL: URL?
     @State var example = ""
@@ -21,7 +22,7 @@ struct WordDetailView: View {
     @State var translation = ""
     
     var body: some View {
-        CustomNavigationBar(title: "Words", showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton) {
+        CustomNavigationBar(title: "Words", showLogo: inAppPurchaseViewModel.isSubscribed ? true : false, imageName: "Vector4324234", customNavBarState: .withBackButton) {
             ScrollView {
                 VStack {
                     VStack {

@@ -16,6 +16,7 @@ struct ProfileView: View {
     @EnvironmentObject var topicViewModel: TopicViewModel
     @EnvironmentObject var wordsViewModel: WordsViewModel
     @EnvironmentObject var dailyTapCounter: DailyTapCounter
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
     
     @State private var showAlertLogout = false
     @State private var showAlertDeleteAccount = false
@@ -173,16 +174,20 @@ struct ProfileView: View {
                         
                         Spacer()
                         
-                        Text("\(wordsViewModel.learnedWords.count)")
-                            .padding()
-                            .padding(.horizontal, 10)
-                            .background {
-                                LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
-                                                        Color(Color(hex: "#38A9CF") ?? .blue)],
-                                               startPoint: .leading,
-                                               endPoint: .trailing)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 50))
+                        if !inAppPurchaseViewModel.isSubscribed {
+                            Text("\(wordsViewModel.learnedWords.count)")
+                                .padding()
+                                .padding(.horizontal, 10)
+                                .background {
+                                    LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
+                                                            Color(Color(hex: "#38A9CF") ?? .blue)],
+                                                   startPoint: .leading,
+                                                   endPoint: .trailing)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 50))
+                        }
+                        
+                        
                     }
                     .foregroundStyle(.white)
                     .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
@@ -192,29 +197,32 @@ struct ProfileView: View {
                         appRouter.goTo(.learnedWordsView)
                     }
                     
-                    HStack {
-                        Image("Vector 167098623")
-                        Text("Available messages")
-                            .padding(.leading, 7)
-                        
-                        Spacer()
-                        
-                        Text("\(dailyTapCounter.tapsToday)/3")
-                            .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive15))
-                            .padding()
-                            .padding(.horizontal, 10)
-                            .background {
-                                LinearGradient(colors: [Color(Color(hex: "#24AF5C") ?? .blue),
-                                                        Color(Color(hex: "#14A9A4") ?? .blue)],
-                                               startPoint: .leading,
-                                               endPoint: .trailing)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 50))
+                    if !inAppPurchaseViewModel.isSubscribed {
+                        HStack {
+                            Image("Vector 167098623")
+                            Text("Available messages")
+                                .padding(.leading, 7)
+                            
+                            Spacer()
+                            
+                            Text("\(dailyTapCounter.tapsToday)/3")
+                                .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive15))
+                                .padding()
+                                .padding(.horizontal, 10)
+                                .background {
+                                    LinearGradient(colors: [Color(Color(hex: "#24AF5C") ?? .blue),
+                                                            Color(Color(hex: "#14A9A4") ?? .blue)],
+                                                   startPoint: .leading,
+                                                   endPoint: .trailing)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 50))
+                        }
+                        .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
+                        .foregroundStyle(.white)
+                        .padding(.trailing, 10)
+                        .padding(.bottom)
                     }
-                    .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
-                    .foregroundStyle(.white)
-                    .padding(.trailing, 10)
-                    .padding(.bottom)
+                    
                     
                     Button {
                         showAlertLogout = true

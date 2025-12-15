@@ -11,11 +11,13 @@ struct WordsView: View {
     
     @EnvironmentObject var appRouter: AppRouter
     @EnvironmentObject var wordsViewModel: WordsViewModel
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
+
     @State private var showAlert = false
     
     
     var body: some View {
-        CustomNavigationBar(title: "Words", showLogo: true, imageName: "Vector4324234", customNavBarState: .withoutBackButton) {
+        CustomNavigationBar(title: "Words", showLogo: inAppPurchaseViewModel.isSubscribed ? true : false, imageName: "Vector4324234", customNavBarState: .withoutBackButton) {
             ZStack {
                 VStack {
                     CustomSegmentControl()

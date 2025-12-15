@@ -20,11 +20,16 @@ struct FreeChatView: View {
     @EnvironmentObject var viewModel: AIChatViewModel
     @EnvironmentObject var simpleTimerViewModel: SimpleTimerViewModel
     @EnvironmentObject var dailyTapCounter: DailyTapCounter
+    @EnvironmentObject var inAppPurchaseViewModel: InAppPurchaseViewModel
+    @EnvironmentObject var onboardingViewModel: OnboardingViewModel
+    @State private var showPermissionAlert = false
+    
+    
     @Binding var savedWords: [String]
     
     
     var body: some View {
-        CustomNavigationBar(title: topicViewModel.selectedTopic, showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton) {
+        CustomNavigationBar(title: topicViewModel.selectedTopic, showLogo: inAppPurchaseViewModel.isSubscribed ? true : false, imageName: "Vector4324234", customNavBarState: .withBackButton) {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
@@ -66,10 +71,14 @@ struct FreeChatView: View {
                                             .onTapGesture {
                                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                                 generator.impactOccurred()
-                                                Task {
-                                                    try await wordsViewModel.saveWord("\(viewModel.translateWord) - \(viewModel.translatedWord)" )
-                                                    wordsViewModel.showSavedAlert = true
-                                                    viewModel.showTranslateWord = false
+                                                if inAppPurchaseViewModel.isSubscribed {
+                                                    Task {
+                                                        try await wordsViewModel.saveWord("\(viewModel.translateWord) - \(viewModel.translatedWord)" )
+                                                        wordsViewModel.showSavedAlert = true
+                                                        viewModel.showTranslateWord = false
+                                                    }
+                                                }else{
+                                                    onboardingViewModel.showPaywall = true
                                                 }
                                             }
                                         }
@@ -186,23 +195,24 @@ struct FreeChatView: View {
                         HStack {
                             Spacer()
                             Button(action: {
-                                if !viewModel.isRecording {
-                                    dailyTapCounter.registerTap()
-                                }
-                                
-                                if viewModel.isRecording {
-                                    simpleTimerViewModel.stop()
-                                }else{
-                                    simpleTimerViewModel.reset()
-                                    simpleTimerViewModel.start()
-                                }
-                                viewModel.toggleRecording()
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                checkMicrophonePermission()
                             }) {
                                 Image(viewModel.isRecording ? "icon-park-solid_voicee" : "icon-park-solid_voice")
                             }
                             
                             Button(action: {
-                                viewModel.sendToOpenAI()
+                                if dailyTapCounter.tapsToday < 3 {
+                                    
+                                    viewModel.sendToOpenAI()
+                                }else{
+                                    if inAppPurchaseViewModel.isSubscribed {
+                                        viewModel.sendToOpenAI()
+                                    }else{
+                                        onboardingViewModel.showPaywall = true
+                                    }
+                                }
                             }) {
                                 Image("ion_send")
                             }
@@ -223,7 +233,77 @@ struct FreeChatView: View {
             } message: {
                 Text("Word \(viewModel.translateWord) saved")
             }
+            .alert("Microphone access is disabled.",
+                   isPresented: $showPermissionAlert) {
+                Button("Settings") {
+                    openSettings()
+                }
+                Button("Cancel", role: .cancel) {}
+                
+            } message: {
+                Text("Please enable microphone access in settings.")
+            }
         }
+    }
+    
+    
+    private func checkMicrophonePermission() {
+        let permission = AVAudioSession.sharedInstance().recordPermission
+        
+        switch permission {
+        case .granted:
+            handleMicButtonTap()
+        case .denied:
+            showPermissionAlert = true
+        case .undetermined:
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        handleMicButtonTap()
+                    } else {
+                        showPermissionAlert = true
+                    }
+                }
+            }
+            
+        @unknown default:
+            showPermissionAlert = true
+        }
+    }
+    
+    
+    private func openSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+    
+    
+    func handleMicButtonTap() {
+        if viewModel.isRecording {
+            simpleTimerViewModel.stop()
+            viewModel.toggleRecording()
+            return
+        }
+        
+        if inAppPurchaseViewModel.isSubscribed {
+            startRecording()
+            return
+        }
+        
+        guard dailyTapCounter.tapsToday < 3 else {
+            onboardingViewModel.showPaywall = true
+            return
+        }
+        
+        startRecording()
+    }
+    
+    
+    private func startRecording() {
+        dailyTapCounter.registerTap()
+        simpleTimerViewModel.reset()
+        simpleTimerViewModel.start()
+        viewModel.toggleRecording()
     }
 }
 
