@@ -16,7 +16,6 @@ struct OnboardingPaywall: View {
     var body: some View {
         
         ZStack {
-            
             Color(hex: "#212737")
                 .ignoresSafeArea()
             
@@ -24,28 +23,20 @@ struct OnboardingPaywall: View {
                 Image("Vector 1-2")
                     .resizable()
                     .frame(height: 200)
-                
                 Spacer()
             }
             
-            
             VStack {
-                
                 Image("Mask group")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .padding(.top, 60)
-                
                 Spacer()
             }
             
             VStack {
-                
-                
                 HStack {
-                    
                     Spacer()
-                    
                     Button {
                         onboardingViewModel.showPaywall = false
                     } label: {
@@ -53,30 +44,24 @@ struct OnboardingPaywall: View {
                             .foregroundColor(.white)
                     }
                 }
-                
                 Spacer()
-                
             }
             .padding(.top, 60)
             .padding(.trailing)
             
             VStack {
-                
                 Spacer()
-                
                 VStack {
-                    
                     Text("Unlock your best English yet")
                         .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive22))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
-                        .padding()
+                        .padding(.vertical)
                     
                     Text("Unlock unlimited AI conversations, themed \nlessons, and smart learning tools. \nMake daily practice a part of your life.")
                         .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive14))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
-                    
                     
                     Text("\(trialIsOn ? inAppPurchaseViewModel.getPrice(productID: AppDefaults.freeTrailWeekly, products: inAppPurchaseViewModel.products) : inAppPurchaseViewModel.getPrice(productID: AppDefaults.weekly, products: inAppPurchaseViewModel.products)) per week")
                         .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive18))
@@ -88,13 +73,6 @@ struct OnboardingPaywall: View {
                         .padding(.bottom)
                     
                     HStack {
-                        
-                        //                        Text("Enable 7 days Free Trial")
-                        //                            .font(.custom("Montserrat-Light", size: 15))
-                        //                            .multilineTextAlignment(.leading)
-                        //                            .foregroundStyle(.white)
-                        
-                        
                         Toggle("Enable 7 days Free Trial", isOn: $trialIsOn)
                             .foregroundStyle(.white)
                             .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive17))
@@ -132,8 +110,7 @@ struct OnboardingPaywall: View {
                             }
                         }
                     } label: {
-                        
-                        VStack {
+                        VStack(spacing: 2) {
                             Text("SUBSCRIBE FOR \(trialIsOn ? inAppPurchaseViewModel.getPrice(productID: AppDefaults.freeTrailWeekly, products: inAppPurchaseViewModel.products) : inAppPurchaseViewModel.getPrice(productID: AppDefaults.weekly, products: inAppPurchaseViewModel.products))/week")
                                 .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                 .foregroundStyle(.white)
@@ -152,12 +129,12 @@ struct OnboardingPaywall: View {
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 50))
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 25)
                 }
                 .padding()
                 .background(
                     BlurView(style: .systemUltraThinMaterialDark)
-                        .opacity(1)
+                        .opacity(0.5)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 50))
             }

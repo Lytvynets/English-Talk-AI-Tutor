@@ -12,6 +12,7 @@ import FirebaseCore
 import CryptoKit
 import AuthenticationServices
 import SwiftUI
+import FirebaseFirestore
 
 
 @MainActor
@@ -88,6 +89,21 @@ class AuthorizationViewModel: NSObject, ObservableObject {
         authorizationController.performRequests()
     }
     
+    
+    func deleteUserDocument() async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw NSError(domain: "Auth", code: 401)
+        }
+
+        let uid = user.uid
+        let db = Firestore.firestore()
+
+        let userRef = db.collection("users").document(uid)
+
+        try await userRef.delete()
+
+        try await user.delete()
+    }
     
     
 }

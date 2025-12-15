@@ -25,6 +25,7 @@ struct TalkWiseApp: App {
     @StateObject var settingsViewModel = SettingsViewModel()
     @ObservedObject var simpleTimerViewModel = SimpleTimerViewModel()
     @ObservedObject var inAppPurchaseViewModel = InAppPurchaseViewModel()
+    @ObservedObject var dailyTapCounter = DailyTapCounter()
     
     @State var savedWords: [String] = []
     @State var isActive = false
@@ -41,25 +42,22 @@ struct TalkWiseApp: App {
     var body: some Scene {
         
         WindowGroup {
-            
             if isActive {
-                
                 if onboardingViewModel.showOnboarding {
-                    
                     OnboardingView()
                         .environmentObject(onboardingViewModel)
                         .environmentObject(inAppPurchaseViewModel)
-                    
                 }else {
                     if onboardingViewModel.showPaywall {
                         OnboardingPaywall()
                             .environmentObject(onboardingViewModel)
                             .environmentObject(inAppPurchaseViewModel)
-                        
+                            .onDisappear {
+                                settingsViewModel.showTranslateLanguageView = true
+                            }
                     }else {
                         NavigationStack(path: $appRouter.path) {
                             ZStack {
-                                
                                 switch customTabBarObserver.selectedTab {
                                 case .topics:
                                     TopicsView()
@@ -73,14 +71,12 @@ struct TalkWiseApp: App {
                                 
                                 VStack {
                                     Spacer()
-                                    
                                     CustomTabBar()
                                 }
                                 
                                 if authorizationViewModel.showAuthorizationView {
                                     AuthorizationView()
                                 }
-                                
                             }
                             .sheet(isPresented: $settingsViewModel.showTranslateLanguageView) {
                                 TranslateLanguageView()
@@ -111,7 +107,7 @@ struct TalkWiseApp: App {
                         .environmentObject(settingsViewModel)
                         .environmentObject(simpleTimerViewModel)
                         .environmentObject(inAppPurchaseViewModel)
-                        
+                        .environmentObject(dailyTapCounter)
                     }
                 }
             }else{
@@ -147,8 +143,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             NotificationManager.shared.requestPermission()
             NotificationManager.shared.scheduleDailyNotification()
         }
-        
         return true
     }
-    
 }

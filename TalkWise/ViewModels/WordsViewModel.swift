@@ -20,6 +20,7 @@ class WordsViewModel: ObservableObject {
     @Published var selectedWordImgUrl: URL?
     @Published var selectedIndex = 0
     @Published var showAlert = false
+    @Published var showSavedAlert = false
     @Published var wordToDelete = ""
     
     
@@ -35,6 +36,7 @@ class WordsViewModel: ObservableObject {
             .setData([
                 "words": FieldValue.arrayUnion([word])
             ], merge: true)
+
     }
     
     func deleteWord(_ word: String) async throws {

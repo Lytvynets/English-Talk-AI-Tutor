@@ -11,28 +11,12 @@ import Kingfisher
 struct WordCell: View {
     
     @EnvironmentObject var wordsViewModel: WordsViewModel
-
     @State var word: String
     @State var imageURL: URL?
     
+    
     var body: some View {
-        
         HStack {
-//            Image("launchicon")
-//                .resizable()
-//                .aspectRatio(contentMode: .fit)
-//                .frame(width: 57, height: 53)
-//                .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-//            AsyncImage(url: imageURL) { image in
-//                image.resizable()
-//            } placeholder: {
-//                Image("launchicon").resizable()
-//            }
-//            .frame(width: 57, height: 53)
-//            .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-            
             KFImage(imageURL)
                 .placeholder {
                     Image("launchicon")
@@ -43,7 +27,8 @@ struct WordCell: View {
             
             Text(word)
                 .foregroundStyle(.white)
-                .font(.custom("Montserrat-Bold", size: 16))
+                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive16))
+                .padding(.leading)
             
             Spacer()
             
@@ -57,7 +42,6 @@ struct WordCell: View {
                     Color.black
                         .opacity(0.15)
                 })
-         
         )
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .onAppear {
@@ -67,7 +51,6 @@ struct WordCell: View {
                 }
             }
         }
-      
     }
 }
 

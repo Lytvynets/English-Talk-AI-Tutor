@@ -59,7 +59,6 @@ struct LoadingView: View {
                 Text("Your AI speaking partner")
                     .font(.custom("Montserrat-Light", size: 16))
                     .opacity(showSubtitle ? 1 : 0)
-                       // .offset(y: showSubtitle ? 0 : 20)
                         .animation(.easeOut(duration: 0.6), value: showSubtitle)
                         .foregroundStyle(.white)
          
@@ -95,14 +94,18 @@ struct LoadingView: View {
 struct TypewriterText: View {
     let text: String
     @State private var visibleText = ""
+    private let haptic = UIImpactFeedbackGenerator(style: .medium)
+
     
     var body: some View {
         Text(visibleText)
             .onAppear {
                 visibleText = ""
+                haptic.prepare()
                 for (index, char) in text.enumerated() {
                     DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
                         visibleText.append(char)
+                        haptic.impactOccurred(intensity: 0.3)
                     }
                 }
             }

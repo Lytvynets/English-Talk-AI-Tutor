@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct OnboardingView: View {
     
@@ -21,12 +22,10 @@ struct OnboardingView: View {
                 Image("Vector 1-2")
                     .resizable()
                     .frame(height: 200)
-                
                 Spacer()
             }
             
             VStack {
-                
                 Image(onboardingViewModel.onboardingItems[onboardingViewModel.currentItem].imageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -34,24 +33,20 @@ struct OnboardingView: View {
                     .padding(.horizontal, onboardingViewModel.currentItem == 0 ? 19 : 0)
                     .padding(.leading, onboardingViewModel.currentItem == 1 ? 10 : 0)
                     .padding(.horizontal, onboardingViewModel.currentItem == 2 ? 10 : 0)
-                
                 Spacer()
             }
             
             VStack {
-                
                 Spacer()
-                
                 VStack {
-                    
                     Text(onboardingViewModel.onboardingItems[onboardingViewModel.currentItem].title)
-                        .font(.custom("Montserrat-Bold", size: 22))
+                        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive22))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
-                        .padding()
+                        .padding(.vertical)
                     
                     Text(onboardingViewModel.onboardingItems[onboardingViewModel.currentItem].subtitle)
-                        .font(.custom("Montserrat-Light", size: 14))
+                        .font(.custom("Montserrat-Light", size: AdaptiveFontSize.adaptive14))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
                         .padding(.bottom)
@@ -60,17 +55,23 @@ struct OnboardingView: View {
                         .padding(.bottom)
                     
                     Button {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
                         if onboardingViewModel.currentItem < onboardingViewModel.onboardingItems.count - 1 {
                             onboardingViewModel.currentItem += 1
                         }else {
                             onboardingViewModel.showOnboarding = false
                             onboardingViewModel.showPaywall = true
                         }
+                        
+                        if onboardingViewModel.currentItem == 2 {
+                            requestAppStoreReview()
+                        }
                     } label: {
                         Text("CONTINUE")
-                            .font(.custom("Montserrat-Bold", size: 22))
+                            .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive22))
                             .foregroundStyle(.white)
-                            .padding(25)
+                            .padding(20)
                             .frame(width: UIScreen.main.bounds.width / 1.1)
                             .background {
                                 LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue),
@@ -80,7 +81,7 @@ struct OnboardingView: View {
                             }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 50))
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 25)
                 }
                 .padding()
                 .background(
@@ -92,7 +93,17 @@ struct OnboardingView: View {
         }
         .ignoresSafeArea()
     }
+    
+    
+    private func requestAppStoreReview() {
+        guard let scene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
+        else { return }
+        
+        SKStoreReviewController.requestReview(in: scene)
+    }
 }
+
 
 #Preview {
     OnboardingView()

@@ -14,8 +14,19 @@ struct WordTapView: View {
     let text: String
     @Binding var savedWords: [String]
     
+    @State var messageIndex: Int
+    
     var body: some View {
-        let words = text.split(separator: " ").map(String.init)
+        
+        let cleanedText = text
+            .replacingOccurrences(of: "\n", with: " ")       // прибираємо абзаци
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression) // замінюємо кілька пробілів на один
+            .trimmingCharacters(in: .whitespacesAndNewlines) // прибираємо пробіли на початку і в кінці
+
+        let words = cleanedText.split(separator: " ").map(String.init)
+
+        
+        //let words = text.split(separator: " ").map(String.init)
         
         return VStack(alignment: .leading) {
             Wrap(words, spacing: 1) { word in
@@ -29,24 +40,15 @@ struct WordTapView: View {
                             viewModel.showTranslateWord = true
                             viewModel.translateWord = "\(word)"
                             viewModel.translatedWord = ""
-                       /*     OpenAITranslator.translate(text: viewModel.translateWord, to: "ukrainian") {*/
+                            viewModel.highlightedMessageIndex = messageIndex // передати індекс
+
                             OpenAITranslator.translate(text: viewModel.translateWord, to: settingsViewModel.selectedLanguages) {
-                            translatedText in
+                                translatedText in
                                 DispatchQueue.main.async {
                                     viewModel.translatedWord = translatedText ?? ""
                                 }
                                 print(translatedText ?? "Помилка перекладу")
                             }
-                            
-//                            DispatchQueue.main.async {
-//                                Translator.translate(text: viewModel.translateWord, to: "uk") { word in
-//                                    print("Word \(viewModel.translateWord) - \(String(describing: word))")
-//                                    DispatchQueue.main.async {
-//                                        viewModel.translatedWord = word ?? ""
-//                                    }
-//                                }
-//                            }
-                         
                         }
                     }
             }
@@ -56,5 +58,5 @@ struct WordTapView: View {
 
 #Preview {
     @Previewable @State var savedWords: [String] = ["Test", "Test"]
-    WordTapView(text: "Test", savedWords: $savedWords)
+    WordTapView(text: "Test", savedWords: $savedWords, messageIndex: 0)
 }

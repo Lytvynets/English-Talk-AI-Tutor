@@ -8,7 +8,6 @@
 import SwiftUI
 import Kingfisher
 
-
 struct WordDetailView: View {
     
     @EnvironmentObject var settingsViewModel: SettingsViewModel
@@ -22,8 +21,7 @@ struct WordDetailView: View {
     @State var translation = ""
     
     var body: some View {
-        
-        CustomNavigationBar(title: "Words", imageName: "Vector4324234", customNavBarState: .withBackButton) {
+        CustomNavigationBar(title: "Words", showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton) {
             ScrollView {
                 VStack {
                     VStack {
@@ -36,25 +34,14 @@ struct WordDetailView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
                         Text(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "")
-                            .font(.custom("Montserrat-Bold", size: 24))
+                            .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive24))
                         
                         Text(transcription)
-                            .font(.custom("Montserrat-Medium", size: 19))
+                            .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive19))
                             .padding(.vertical)
                         
-                        
-                        
                         Text(translation)
-                            .font(.custom("Montserrat-Medium", size: 19))
-                        
-                        
-//                        Text(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").last ?? "")
-//                            .font(.custom("Montserrat-Medium", size: 19))
-                        
-                        
-                        
-                        
-                        
+                            .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive19))
                         
                         Button {
                             aIChatViewModel.speak(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "")
@@ -67,14 +54,13 @@ struct WordDetailView: View {
                                                    startPoint: .leading,
                                                    endPoint: .trailing)
                                 )
-                            
                                 .clipShape(.circle)
                                 .shadow(color: .white.opacity(0.3), radius: 8, x: 0, y: 7)
                         }
                         .padding(.vertical)
                         
                         Text(example)
-                            .font(.custom("Montserrat-Medium", size: 16))
+                            .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
                     }
                     .foregroundStyle(.white)
                     .padding(.bottom)
@@ -82,14 +68,14 @@ struct WordDetailView: View {
                     .padding()
                     .background(
                         BlurView(style: .systemUltraThinMaterialDark)
-                        
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 40))
                     .padding()
                     
                     VStack {
                         Button {
-                            
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             Task {
                                 try await wordsViewModel.saveLearnedWord(wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "")
                             }
@@ -98,12 +84,11 @@ struct WordDetailView: View {
                                 try await wordsViewModel.deleteWord(wordsViewModel.savedWords[wordsViewModel.selectedIndex])
                                 wordsViewModel.savedWords.remove(at: wordsViewModel.selectedIndex)
                                 appRouter.goBack()
-                               
                             }
                         } label: {
                             Text("LEARNED")
                                 .foregroundStyle(.white)
-                                .font(.custom("Montserrat-Bold", size: 17))
+                                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                 .padding()
                                 .frame(height: 62)
                                 .frame(maxWidth: .infinity)
@@ -114,16 +99,17 @@ struct WordDetailView: View {
                                                    endPoint: .trailing)
                                 }
                                 .clipShape(RoundedRectangle(cornerRadius: 25))
-                            
                         }
                         .padding(.bottom)
                         
                         Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             wordsViewModel.selectedIndex += 1
                         } label: {
                             Text("NEXT WORD")
                                 .foregroundStyle(.white)
-                                .font(.custom("Montserrat-Bold", size: 17))
+                                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                 .padding()
                                 .frame(height: 62)
                                 .frame(maxWidth: .infinity)
@@ -151,16 +137,14 @@ struct WordDetailView: View {
     
     
     private func loadData() {
-        
         OpenAITranslator.translate(
             text: wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "",
-            to: settingsViewModel.selectedLanguages 
+            to: settingsViewModel.selectedLanguages
         ) { translatedText in
             DispatchQueue.main.async {
                 translation = translatedText ?? "-"
             }
         }
-    
         
         OpenAITranslator.makeIPA(for: wordsViewModel.savedWords[wordsViewModel.selectedIndex].components(separatedBy: " - ").first ?? "") { transcription in
             self.transcription = transcription ?? "[-]"
@@ -182,4 +166,6 @@ struct WordDetailView: View {
     WordDetailView()
         .environmentObject(WordsViewModel())
         .environmentObject(AIChatViewModel())
+        .environmentObject(SettingsViewModel())
+        .environmentObject(AppRouter())
 }

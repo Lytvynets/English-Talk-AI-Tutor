@@ -10,7 +10,6 @@ import SwiftUI
 struct TranslateLanguageView: View {
     
     @EnvironmentObject var settingsViewModel: SettingsViewModel
-
     
     var body: some View {
         
@@ -28,31 +27,18 @@ struct TranslateLanguageView: View {
                     .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive19))
                     .padding(.top, 10)
          
-                
                 ScrollView {
                     ForEach(settingsViewModel.Languages, id: \.self) { language in
                         LanguageCell(language: language)
                             .padding(.vertical, 5)
-                            
                     }
                 }
                 .scrollIndicators(.hidden)
-          
-                
-                
                 Spacer()
-                
-                
             }
             .padding(10)
             .padding(.top)
-            
-            
-            
-            
         }
-        
-       
     }
 }
 

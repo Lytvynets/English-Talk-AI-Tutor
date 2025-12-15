@@ -14,7 +14,6 @@ struct TopicCell: View {
     
     
     var body: some View {
-        
         HStack {
             Image(iconName)
                 .resizable()
@@ -24,10 +23,9 @@ struct TopicCell: View {
                 .padding(.leading, 7)
             
             Text(title)
-                .font(.custom("Montserrat-Bold", size: 16))
+                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive16))
                 .foregroundStyle(.white)
                 .padding(.vertical, 25)
-            
             
             Spacer()
             
@@ -36,15 +34,13 @@ struct TopicCell: View {
         }
         .background(
             BlurView(style: .systemUltraThinMaterialDark)
+                .overlay(content: {
+                    Color.black
+                        .opacity(0.15)
+                })
         )
-       // .background(Color(hex: "#262D3F"))
         .clipShape(RoundedRectangle(cornerRadius: 15))
-        
-        
-       
     }
-    
-    
 }
 
 #Preview {

@@ -11,6 +11,7 @@ struct AuthorizationView: View {
     
     @EnvironmentObject var authorizationViewModel: AuthorizationViewModel
     @State private var signIn = false
+    @State private var showPassword = false
     
     var body: some View {
         
@@ -43,7 +44,6 @@ struct AuthorizationView: View {
                     TextField("Email Address", text: $authorizationViewModel.email)
                         .foregroundStyle(.white)
                         .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
-                    
                 }
                 .padding()
                 .background(
@@ -61,17 +61,24 @@ struct AuthorizationView: View {
                         .padding(.leading, 7)
                         .padding(.trailing, 7)
                     
-                    TextField("Password", text: $authorizationViewModel.password)
-                        .foregroundStyle(.white)
-                        .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
-//                        .foregroundStyle(Color(hex: "#5E667B") ?? .gray)
-                    
+                    if showPassword {
+                        TextField("Password", text: $authorizationViewModel.password)
+                            .foregroundStyle(.white)
+                            .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
+                    }else{
+                        SecureField("Password", text: $authorizationViewModel.password)
+                            .foregroundStyle(.white)
+                            .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive16))
+                    }
                     
                     Image("mdi_eye")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 24, height: 24)
                         .padding(.trailing, 7)
+                        .onTapGesture {
+                            showPassword.toggle()
+                        }
                 }
                 .padding()
                 .background(
@@ -126,14 +133,11 @@ struct AuthorizationView: View {
                     ProgressView()
                 }
                 
-                
                 Button {
                     Task {
                         try await authorizationViewModel.signInWithGoogle()
                     }
-                    
                 } label: {
-                    
                     HStack {
                         Image("flat-color-icons_google")
                             .resizable()
@@ -141,11 +145,9 @@ struct AuthorizationView: View {
                             .frame(width: 24, height: 24)
                             .padding(.trailing, 7)
                         
-                        
                         Text("Sign in with Google")
                             .font(.custom("Montserrat-Bold", size: 18))
                             .foregroundStyle(.white)
-                        
                     }
                     .padding(20)
                     .frame(width: UIScreen.main.bounds.width / 1.1)
@@ -174,14 +176,14 @@ struct AuthorizationView: View {
                 
                 HStack {
                     Button {
-                        //
+                        openURL(AppDefaults.termsOfUseURL)
                     } label: {
                         Text("Terms of Use")
                             .underline()
                     }.padding(.horizontal, 10)
                     
                     Button {
-                        //
+                        openURL(AppDefaults.privacyPolicyURL)
                     } label: {
                         Text("Privacy Policy")
                             .underline()
@@ -195,6 +197,15 @@ struct AuthorizationView: View {
             .padding(.top)
         }
         .ignoresSafeArea()
+    }
+    
+    
+    private func openURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
     }
 }
 

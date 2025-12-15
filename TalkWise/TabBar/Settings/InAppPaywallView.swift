@@ -22,9 +22,7 @@ struct InAppPaywallView: View {
     @State private var subsPlan: SubsPlan = .weekly
     
     var body: some View {
-        
-        CustomNavigationBar(title: "", imageName: "Vector 28654363", customNavBarState: .withoutBackButton) {
-            
+        CustomNavigationBar(title: "", showLogo: false, imageName: "Vector 28654363", customNavBarState: .withoutBackButton) {
             VStack {
                 HStack {
                     Spacer()
@@ -47,7 +45,6 @@ struct InAppPaywallView: View {
                         Image("gfrtyjyiutgrfed")
                         Text("UNLIMITED ACCESS \nFOR ALL FEATURES")
                             .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive24))
-                        
                     }
                     
                     VStack(alignment: .leading, spacing: 15) {
@@ -94,7 +91,6 @@ struct InAppPaywallView: View {
                                     if inAppPurchaseViewModel.selectedProductId == AppDefaults.yearly {
                                         inAppPurchaseViewModel.selectedProductId = AppDefaults.freeTrailYearly
                                     }
-                                    
                                 }else{
                                     if inAppPurchaseViewModel.selectedProductId == AppDefaults.freeTrailWeekly {
                                         inAppPurchaseViewModel.selectedProductId = AppDefaults.weekly
@@ -107,7 +103,6 @@ struct InAppPaywallView: View {
                                     if inAppPurchaseViewModel.selectedProductId == AppDefaults.freeTrailYearly {
                                         inAppPurchaseViewModel.selectedProductId = AppDefaults.yearly
                                     }
-                                    
                                 }
                             }
                     }
@@ -132,6 +127,8 @@ struct InAppPaywallView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.horizontal)
                         .onTapGesture {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             subsPlan = .weekly
                             if freeTrial {
                                 inAppPurchaseViewModel.selectedProductId = AppDefaults.freeTrailWeekly
@@ -147,7 +144,6 @@ struct InAppPaywallView: View {
                             
                             Text(freeTrial ? inAppPurchaseViewModel.getPrice(productID: AppDefaults.freeTrailMonthly, products: inAppPurchaseViewModel.products) : inAppPurchaseViewModel.getPrice(productID: AppDefaults.monthly, products: inAppPurchaseViewModel.products))
                                 .font(.custom(subsPlan == .monthly ? "Montserrat-Bold" : "Montserrat-Regular", size: AdaptiveFontSize.adaptive18))
-                            
                         }
                         .padding(20)
                         .background(
@@ -156,6 +152,8 @@ struct InAppPaywallView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.horizontal)
                         .onTapGesture {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             subsPlan = .monthly
                             if freeTrial {
                                 inAppPurchaseViewModel.selectedProductId = AppDefaults.freeTrailMonthly
@@ -171,7 +169,6 @@ struct InAppPaywallView: View {
                             
                             Text(freeTrial ? inAppPurchaseViewModel.getPrice(productID: AppDefaults.freeTrailYearly, products: inAppPurchaseViewModel.products) : inAppPurchaseViewModel.getPrice(productID: AppDefaults.yearly, products: inAppPurchaseViewModel.products))
                                 .font(.custom(subsPlan == .annually ? "Montserrat-Bold" : "Montserrat-Regular", size: AdaptiveFontSize.adaptive18))
-                            
                         }
                         .padding(20)
                         .background(
@@ -180,6 +177,8 @@ struct InAppPaywallView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.horizontal)
                         .onTapGesture {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             subsPlan = .annually
                             if freeTrial {
                                 inAppPurchaseViewModel.selectedProductId = AppDefaults.freeTrailYearly
@@ -194,14 +193,12 @@ struct InAppPaywallView: View {
                             Image("grtbvredertnytbvrfc")
                             Text("No Payment yet")
                                 .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive14))
-                            
                         }
                         
                         HStack {
                             Image("htrgfedjuyhgtfrde")
                             Text("Cancel any time")
                                 .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive14))
-                            
                         }
                     }
                     .padding()
@@ -241,14 +238,14 @@ struct InAppPaywallView: View {
                     
                     HStack {
                         Button {
-                            //
+                            openURL(AppDefaults.termsOfUseURL)
                         } label: {
                             Text("Terms of Use")
                                 .underline()
                         }.padding(.horizontal, 10)
                         
                         Button {
-                            //
+                            openURL(AppDefaults.privacyPolicyURL)
                         } label: {
                             Text("Privacy Policy")
                                 .underline()
@@ -274,6 +271,16 @@ struct InAppPaywallView: View {
             .padding(.top, 100)
         }
     }
+    
+    
+    private func openURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
+    
 }
 
 #Preview {

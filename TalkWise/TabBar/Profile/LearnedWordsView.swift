@@ -13,7 +13,7 @@ struct LearnedWordsView: View {
     
     
     var body: some View {
-        CustomNavigationBar(title: "Learned words", imageName: "Vector 28654363", customNavBarState: .withBackButton) {
+        CustomNavigationBar(title: "Learned words", showLogo: false, imageName: "Vector 28654363", customNavBarState: .withBackButton) {
             
             ZStack {
                 ScrollView {

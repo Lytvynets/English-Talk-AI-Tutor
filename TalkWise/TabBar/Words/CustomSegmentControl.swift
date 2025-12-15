@@ -15,12 +15,9 @@ enum Segments {
 struct CustomSegmentControl: View {
     
     @EnvironmentObject var wordsViewModel: WordsViewModel
-//    @State var segments: Segments = .flashcards
     
     var body: some View {
-      
         HStack {
-            
             Button {
                 wordsViewModel.segments = .flashcards
             } label: {
@@ -34,15 +31,11 @@ struct CustomSegmentControl: View {
                                        startPoint: .leading,
                                        endPoint: .trailing) : LinearGradient(colors: [Color.clear,
                                                                                       Color.clear],
-                                                                                startPoint: .leading,
-                                                                                endPoint: .trailing)
+                                                                             startPoint: .leading,
+                                                                             endPoint: .trailing)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 26))                    .clipShape(RoundedRectangle(cornerRadius: 26))
             }
-         
-         
- 
-         
             
             Button {
                 wordsViewModel.segments = .tests
@@ -57,15 +50,13 @@ struct CustomSegmentControl: View {
                                        startPoint: .leading,
                                        endPoint: .trailing) : LinearGradient(colors: [Color.clear,
                                                                                       Color.clear],
-                                                                                startPoint: .leading,
-                                                                                endPoint: .trailing)
+                                                                             startPoint: .leading,
+                                                                             endPoint: .trailing)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 26))
             }
-           
-
         }
-        .font(.custom("Montserrat-Bold", size: 14))
+        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive14))
         .padding(7)
         .frame(maxWidth: .infinity)
         .background(
@@ -74,15 +65,10 @@ struct CustomSegmentControl: View {
                     Color.black
                         .opacity(0.3)
                 })
-               // .opacity(0.8)
         )
         .clipShape(RoundedRectangle(cornerRadius: 28))
         .padding()
-     
-        
-        
     }
-    
 }
 
 #Preview {

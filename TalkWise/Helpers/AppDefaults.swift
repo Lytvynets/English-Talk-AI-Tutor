@@ -16,6 +16,12 @@ class AppDefaults {
     static let freeTrailMonthly = "monthlyTrial.subscription.EnglishTalkAITutor"
     static let freeTrailYearly = "yearlyTrial.subscription.EnglishTalkAITutor"
     
+    static let otherAppsUrl = "https://apps.apple.com/us/developer/vladyslav-lytvynets/id1660079103"
+    static let termsOfUseURL = ""
+    static let privacyPolicyURL = ""
+    static let appURL = ""
+    static let email = ""
+    
     
     static let openAIKey = "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"
     

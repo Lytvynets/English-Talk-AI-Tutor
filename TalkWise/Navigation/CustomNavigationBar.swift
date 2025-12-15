@@ -16,18 +16,20 @@ enum CustomNavBarState {
 struct CustomNavigationBar<Content: View>: View {
     
     let title: String
+    let showLogo: Bool
     let imageName: String
     let content: Content
     let onBack: (() -> Void)?
     let customNavBarState: CustomNavBarState
     @Environment(\.dismiss) private var dismiss
     
-    init(title: String, imageName: String, customNavBarState: CustomNavBarState, onBack: (() -> Void)? = nil, @ViewBuilder content: () -> Content) {
+    init(title: String, showLogo: Bool, imageName: String, customNavBarState: CustomNavBarState, onBack: (() -> Void)? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
         self.imageName = imageName
         self.content = content()
         self.customNavBarState = customNavBarState
         self.onBack = onBack
+        self.showLogo = showLogo
     }
     
     var body: some View {
@@ -72,6 +74,19 @@ struct CustomNavigationBar<Content: View>: View {
                         .padding(.bottom, 7)
                         .padding()
                         .padding(.top, 55)
+                        .overlay {
+                            if showLogo {
+                                HStack {
+                                    Spacer()
+                                    Image("pixel_pro-solid")
+                                }
+                                .padding()
+                                .padding(.top, 45)
+                                
+                            }
+                            
+                            Spacer()
+                        }
                         
                         Spacer()
                     }
@@ -82,6 +97,7 @@ struct CustomNavigationBar<Content: View>: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             case .withoutBackButton:
+                
                 ZStack {
                     
                     VStack {
@@ -98,18 +114,30 @@ struct CustomNavigationBar<Content: View>: View {
                         
                         HStack {
                             
-                            
+                  
                             Spacer()
-                            
                             Text(title)
                                 .font(.system(size: AdaptiveFontSize.adaptive24, weight: .semibold, design: .rounded))
-                                .font(.headline)
-                            
+                                .foregroundStyle(.white)
+                       
                             Spacer()
                         }
                         .padding(.bottom, 7)
                         .padding()
                         .padding(.top, 55)
+                        .overlay {
+                            if showLogo {
+                                HStack {
+                                    Spacer()
+                                    Image("pixel_pro-solid")
+                                }
+                                .padding()
+                                .padding(.top, 45)
+                                
+                            }
+                            
+                            Spacer()
+                        }
                         
                         Spacer()
                     }
@@ -118,6 +146,54 @@ struct CustomNavigationBar<Content: View>: View {
                 
                 content
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+//                ZStack {
+//                    
+//                    VStack {
+//                        Image(imageName)
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
+//                            .frame(maxWidth: .infinity)
+//                        
+//                        Spacer()
+//                        
+//                    }
+//                    
+//                    VStack {
+//                        
+//                        HStack {
+//                            
+//                            
+//                            Spacer()
+//                            
+//                            Text(title)
+//                                .font(.system(size: AdaptiveFontSize.adaptive24, weight: .semibold, design: .rounded))
+//                                .font(.headline)
+//                            
+//                            Spacer()
+//                        }
+//                        .padding(.bottom, 7)
+//                        .padding()
+//                        .padding(.top, 55)
+//                        .overlay {
+//                            if showLogo {
+//                                HStack {
+//                                    Spacer()
+//                                    Image("pixel_pro-solid")
+//                                }
+//                                .padding()
+//                                .padding(.top, 45)
+//                                
+//                            }
+//                            
+//                            Spacer()
+//                        }
+//                    }
+//                }
+//                
+//                
+//                content
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .background(Color(hex: "#212737"))
@@ -128,7 +204,7 @@ struct CustomNavigationBar<Content: View>: View {
 }
 
 #Preview {
-    CustomNavigationBar(title: "Test", imageName: "Vector4324234", customNavBarState: .withoutBackButton) {
+    CustomNavigationBar(title: "Test", showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton) {
         Text("Test")
     }
 }

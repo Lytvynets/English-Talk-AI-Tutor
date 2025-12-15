@@ -18,21 +18,19 @@ struct TestsView: View {
     
     
     var body: some View {
-        CustomNavigationBar(title: "Tests", imageName: "Vector4324234", customNavBarState: .withBackButton, onBack: {
+        CustomNavigationBar(title: "Tests", showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton, onBack: {
             testViewModel.showAlert = true
         } ) {
             ZStack {
-                
                 VStack {
                     ScrollView{
-                        
                         VStack {
                             HStack {
                                 Text("Progress")
-                                    .font(.custom("Montserrat-Regular", size: 14))
+                                    .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive14))
                                 Spacer()
                                 Text("\(currentIndex + 1)/\(wordsViewModel.questionsCount)")
-                                    .font(.custom("Montserrat-Regular", size: 14))
+                                    .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive14))
                             }
                             .padding(.horizontal, 7)
                             .padding(.bottom)
@@ -53,7 +51,7 @@ struct TestsView: View {
                             
                             Text("What is this?")
                                 .foregroundStyle(.white)
-                                .font(.custom("Montserrat-Bold", size: 18))
+                                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive18))
                                 .padding(.vertical)
                             
                             if testViewModel.isLoading {
@@ -82,14 +80,23 @@ struct TestsView: View {
                                                 showResult = true
                                             }
                                             if option == question.correctWord {
+                                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                                generator.impactOccurred()
                                                 testViewModel.correctAnswers += 1
                                             }else{
+                                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                                generator.prepare()
+                                                generator.impactOccurred()
+                                                
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                                                    generator.impactOccurred()
+                                                }
                                                 testViewModel.incorrectAnswers += 1
                                             }
                                         } label: {
                                             Text(option.components(separatedBy: " - ").first ?? "")
                                                 .foregroundStyle(.white)
-                                                .font(.custom("Montserrat-Bold", size: 16))
+                                                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive16))
                                                 .frame(width: 165, height: 92)
                                                 .background(
                                                     showResult
@@ -133,6 +140,12 @@ struct TestsView: View {
                                                         )
                                                 )
                                                 .clipShape(RoundedRectangle(cornerRadius: 40))
+                                                .shadow(
+                                                    color: Color.black.opacity(0.35),
+                                                    radius: 15,
+                                                    x: 0,
+                                                    y: 6
+                                                )
                                         }
                                     }
                                 }
@@ -151,7 +164,7 @@ struct TestsView: View {
                                 } label: {
                                     Text("CONTINUE")
                                         .foregroundStyle(.white)
-                                        .font(.custom("Montserrat-Bold", size: 17))
+                                        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                         .padding()
                                         .padding(.vertical, 7)
                                         .frame(maxWidth: .infinity)
@@ -168,7 +181,7 @@ struct TestsView: View {
                         }else{
                             Text("Test completed")
                                 .foregroundStyle(.white)
-                                .font(.custom("Montserrat-Bold", size: 18))
+                                .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive18))
                                 .padding(.vertical)
                             
                             Image("Group 19644")
@@ -178,7 +191,7 @@ struct TestsView: View {
                                 
                                 Spacer()
                                 
-                                Text("\(testViewModel.correctAnswers )")
+                                Text("\(testViewModel.correctAnswers)")
                                     .padding()
                                     .padding(.horizontal)
                                     .background(
@@ -198,11 +211,8 @@ struct TestsView: View {
                             .padding(.horizontal)
                             .padding(.vertical, 7)
                             
-                            
-                            
                             HStack {
                                 Text("Incorrect answers")
-                                
                                 
                                 Spacer()
                                 
@@ -225,9 +235,9 @@ struct TestsView: View {
                             .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive16))
                             .padding(.horizontal)
                             
-                            
-                            
                             Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
                                 withAnimation {
                                     testViewModel.testCompleted = false
                                     wordsViewModel.progress = 0.0
@@ -242,7 +252,7 @@ struct TestsView: View {
                             } label: {
                                 Text("START TEST AGAIN")
                                     .foregroundStyle(.white)
-                                    .font(.custom("Montserrat-Bold", size: 17))
+                                    .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                     .padding(20)
                                     .frame(maxWidth: .infinity)
                                     .background {
@@ -256,16 +266,14 @@ struct TestsView: View {
                             }
                             .padding(.top)
                             
-                            
                             Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
                                 appRouter.goBack()
                             } label: {
-                                
                                 Text("BACK TO MENU")
-                                    .font(.custom("Montserrat-Bold", size: 17))
+                                    .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                                     .foregroundStyle(.white)
-                                
-                                
                                     .padding(20)
                                     .frame(width: UIScreen.main.bounds.width / 1.1)
                                     .background {
@@ -275,13 +283,7 @@ struct TestsView: View {
                                     }
                             }
                             .clipShape(RoundedRectangle(cornerRadius: 50))
-                            // .padding(.top, 1)
-                            
-                            
-                            
                         }
-                        
-                        
                     }
                     .padding(.top, 110)
                 }
@@ -298,25 +300,17 @@ struct TestsView: View {
                     }
                 }
                 
-                
                 if testViewModel.showAlert {
-                    
                     BlurView(style: .systemUltraThinMaterialDark)
                         .ignoresSafeArea()
-                    
                     
                     CustomAlert(textAlert: "Are you sure you want to stop the test?") {
                         appRouter.goBack()
                     } noButton: {
                         testViewModel.showAlert = false
                     }
-
                 }
-                
-                
             }
-            
-            
         }
     }
 }
