@@ -14,6 +14,7 @@ class InAppPurchaseViewModel: ObservableObject {
     @Published var trialIsUsed = false
     @Published var products: [Product] = []
     @Published var presentErrorAlert = false
+    @Published var isLoading = false
     
     func fetchProducts() async {
         do {
@@ -62,13 +63,10 @@ class InAppPurchaseViewModel: ObservableObject {
                 return false
             }
             
-            // Отримати пробну пропозицію
             if let introOffer = subscription.introductoryOffer {
-                // Перевірити eligibility (чи доступний тріал)
                 let eligibility = await product.subscription?.isEligibleForIntroOffer ?? false
                 return eligibility
             } else {
-                // Взагалі немає тріалу
                 return false
             }
             
@@ -95,6 +93,7 @@ class InAppPurchaseViewModel: ObservableObject {
                     completion(.failure(error))
                 }
             case .userCancelled:
+                isLoading = false
                 print("Користувач скасував покупку")
                 
             default:
@@ -113,23 +112,13 @@ class InAppPurchaseViewModel: ObservableObject {
                 let formatter = NumberFormatter()
                 formatter.numberStyle = .currency
                 formatter.locale = product.priceFormatStyle.locale
-
+                
                 return formatter.string(from: product.price as NSDecimalNumber) ?? "-"
             }
         }
         return "-"
     }
     
-    
-//    func getPrice(productID: String, products: [Product]) -> String {
-//        for product in products {
-//            if product.id == productID {
-//                return "\(product.price)"
-//            }
-//        }
-//        return "-"
-//    }
-//    
     
     func restorePurchases() async {
         do {
@@ -155,18 +144,14 @@ class InAppPurchaseViewModel: ObservableObject {
     }
     
     
-    
-    
     func checkSubscriptionStatus(for productID: String) async -> Bool {
         do {
-            // Завантажити продукт
             let products = try await Product.products(for: [productID])
             guard let product = products.first, let subscription = product.subscription else {
                 print("Продукт або підписка не знайдені")
                 return false
             }
             
-            // Отримати статус підписки
             let status = try await subscription.status
             for statusItem in status {
                 switch statusItem.state {

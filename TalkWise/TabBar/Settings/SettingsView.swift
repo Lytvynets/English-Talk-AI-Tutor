@@ -356,6 +356,7 @@ struct SettingsView: View {
         })
     }
     
+    
     private func openURL(_ urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
@@ -365,60 +366,8 @@ struct SettingsView: View {
     }
 }
 
+
 #Preview {
     SettingsView()
         .environmentObject(SettingsViewModel())
-}
-
-
-
-final class SimpleTimerViewModel: ObservableObject {
-    
-    @Published var seconds: Int = 0
-    @Published var isRunning = false
-    
-    private var timer: Timer?
-    
-    var timeString: String {
-        let minutes = seconds / 60
-        let seconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-    
-    func start() {
-        guard !isRunning else { return }
-        isRunning = true
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.seconds += 1
-        }
-    }
-    
-    func stop() {
-        isRunning = false
-        timer?.invalidate()
-        timer = nil
-    }
-    
-    func toggle() {
-        isRunning ? stop() : start()
-    }
-    
-    func reset() {
-        stop()
-        seconds = 0
-    }
-}
-
-
-struct ShareSheetURL: UIViewControllerRepresentable {
-    
-    var activityItems: [Any]
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

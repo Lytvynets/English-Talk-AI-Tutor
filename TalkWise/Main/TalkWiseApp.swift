@@ -31,12 +31,12 @@ struct TalkWiseApp: App {
     @State var isActive = false
     
     init() {
-         let settingsVM = SettingsViewModel()
-         _settingsViewModel = StateObject(wrappedValue: settingsVM)
-         _topicViewModel = StateObject(
-             wrappedValue: TopicViewModel(settings: settingsVM)
-         )
-     }
+        let settingsVM = SettingsViewModel()
+        _settingsViewModel = StateObject(wrappedValue: settingsVM)
+        _topicViewModel = StateObject(
+            wrappedValue: TopicViewModel(settings: settingsVM)
+        )
+    }
     
     
     var body: some Scene {
@@ -47,6 +47,15 @@ struct TalkWiseApp: App {
                     OnboardingView()
                         .environmentObject(onboardingViewModel)
                         .environmentObject(inAppPurchaseViewModel)
+                        .onAppear {
+                            @AppStorage("dailyNotificationsEnabled")
+                            var notificationsEnabled: Bool = true
+                            
+                            if notificationsEnabled {
+                                NotificationManager.shared.requestPermission()
+                                NotificationManager.shared.scheduleDailyNotification()
+                            }
+                        }
                 }else {
                     if onboardingViewModel.showPaywall {
                         OnboardingPaywall()
@@ -114,7 +123,7 @@ struct TalkWiseApp: App {
                 LoadingView()
                     .onAppear {
                         Task {
-                           await inAppPurchaseViewModel.fetchProducts()
+                            await inAppPurchaseViewModel.fetchProducts()
                         }
                     }
                     .onAppear {
@@ -133,16 +142,16 @@ struct TalkWiseApp: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
-    @AppStorage("dailyNotificationsEnabled")
-    private var notificationsEnabled: Bool = true
+//    @AppStorage("dailyNotificationsEnabled")
+//    private var notificationsEnabled: Bool = true
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
-        if notificationsEnabled {
-            NotificationManager.shared.requestPermission()
-            NotificationManager.shared.scheduleDailyNotification()
-        }
+//        if notificationsEnabled {
+//            NotificationManager.shared.requestPermission()
+//            NotificationManager.shared.scheduleDailyNotification()
+//        }
         return true
     }
 }

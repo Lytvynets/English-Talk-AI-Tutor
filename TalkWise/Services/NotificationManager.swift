@@ -51,4 +51,3 @@ final class NotificationManager {
             .removePendingNotificationRequests(withIdentifiers: [notificationId])
     }
 }
-

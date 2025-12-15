@@ -36,7 +36,7 @@ class WordsViewModel: ObservableObject {
             .setData([
                 "words": FieldValue.arrayUnion([word])
             ], merge: true)
-
+        
     }
     
     func deleteWord(_ word: String) async throws {
@@ -126,6 +126,4 @@ class WordsViewModel: ObservableObject {
             }
         }
     }
-
-    
 }

@@ -25,9 +25,7 @@ struct CustomTabBar: View {
     @EnvironmentObject var customTabBarObserver: CustomTabBarObserver
     
     var body: some View {
-        
         HStack(spacing: 30) {
-            
             Button {
                 customTabBarObserver.selectedTab = .topics
             } label: {

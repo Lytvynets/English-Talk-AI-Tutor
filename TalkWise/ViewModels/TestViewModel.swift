@@ -14,26 +14,20 @@ class TestViewModel: ObservableObject {
     @Published var correctAnswers = 0
     @Published var incorrectAnswers = 0
     @Published var showAlert = false
-
     
     
     func generateTest(words: [String], count: Int) {
         isLoading = true
         questions.removeAll()
         
-        // 1. Беремо рандомні слова
         let selectedWords = Array(words.shuffled().prefix(count))
-        
         var tempQuestions: [Question] = []
         let group = DispatchGroup()
-        
         for word in selectedWords {
             group.enter()
             
             PexelsImageFetcher.shared.fetchImageURL(for: word) { url in
                 if let url = url {
-                    
-                    // 2. Створюємо 4 варіанти
                     let incorrect = words
                         .filter { $0 != word }
                         .shuffled()

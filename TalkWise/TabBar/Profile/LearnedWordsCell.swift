@@ -16,16 +16,14 @@ struct LearnedWordsCell: View {
     @GestureState private var dragOffset: CGFloat = 0
     @State var word: String
     
+    
     var body: some View {
-        
         HStack {
             HStack(spacing: 20) {
                 Image("launchicon")
                     .resizable()
                     .frame(width: 57, height: 53)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                
                 Button {
                     aIChatViewModel.speak(word.components(separatedBy: " - ").first ?? "")
                 } label: {
@@ -39,7 +37,6 @@ struct LearnedWordsCell: View {
                         )
                         .clipShape(.circle)
                         .shadow(color: .white.opacity(0.3), radius: 8, x: 0, y: 7)
-
                 }
                 
                 Text(word)
@@ -73,7 +70,6 @@ struct LearnedWordsCell: View {
                 }
             }
             
-            
             if showDeleteButton {
                 HStack {
                     Image("hgoijergoiwejfiojewfe")
@@ -106,10 +102,7 @@ struct LearnedWordsCell: View {
             offset = 0
         }
     }
-    
-    
 }
-
 
 
 #Preview {

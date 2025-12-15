@@ -206,13 +206,16 @@ struct InAppPaywallView: View {
                     Button {
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
+                        inAppPurchaseViewModel.isLoading = true
                         Task {
                             if let product = inAppPurchaseViewModel.products.first(where: {$0.id == inAppPurchaseViewModel.selectedProductId }) {
                                 await inAppPurchaseViewModel.purchase(product) { result in
                                     switch result {
                                     case .success(_):
+                                        inAppPurchaseViewModel.isLoading = false
                                         dismiss()
                                     case .failure(_):
+                                        inAppPurchaseViewModel.isLoading = false
                                         inAppPurchaseViewModel.presentErrorAlert = true
                                     }
                                 }
@@ -266,21 +269,34 @@ struct InAppPaywallView: View {
                     .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive11))
                 }
                 .foregroundStyle(.white)
-                
             }
             .padding(.top, 100)
+        }
+        .alert("Purchase Failed", isPresented: $inAppPurchaseViewModel.presentErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("We couldn’t complete your purchase at this time. Please try again later or check your payment method.")
+        }
+        .overlay {
+            if inAppPurchaseViewModel.isLoading {
+                ZStack {
+                    Color.black
+                        .ignoresSafeArea()
+                        .opacity(0.5)
+                    
+                    ProgressView()
+                }
+            }
         }
     }
     
     
     private func openURL(_ urlString: String) {
         guard let url = URL(string: urlString) else { return }
-        
         if UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
-    
 }
 
 #Preview {

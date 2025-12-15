@@ -13,11 +13,7 @@ struct OpenAITranslator {
     
     private var cache: [String: String] = [:]
     
-    
     static func makeIPA(for rawWord: String, completion: @escaping (String?) -> Void) {
-        
-        
-        
         let word = rawWord.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if let cached = shared.cache[word] {
             completion(cached)
@@ -36,7 +32,6 @@ struct OpenAITranslator {
         let messages: [[String: String]] = [
             ["role": "system", "content": systemPrompt],
             ["role": "user", "content": word]
-            //["role": "user", "content": word]
         ]
         
         let json: [String: Any] = [
@@ -49,7 +44,6 @@ struct OpenAITranslator {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        // <- ЗВЕРНИ УВАГУ: тут нема зайвої дужки
         request.addValue("Bearer \(AppDefaults.openAIKey)", forHTTPHeaderField: "Authorization")
         
         do {
@@ -68,7 +62,6 @@ struct OpenAITranslator {
             
             if let http = response as? HTTPURLResponse {
                 guard (200...299).contains(http.statusCode) else {
-                    // Спробуй вивести тіло відповіді для дебагу
                     if let d = data, let body = String(data: d, encoding: .utf8) {
                         print("OpenAI returned status:", http.statusCode, "body:", body)
                     } else {
@@ -83,22 +76,16 @@ struct OpenAITranslator {
                 completion(nil); return
             }
             
-            // Парсимо відповідь
             if let responseObj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                // Дебаг: виводимо повну відповідь (при розробці можна коментувати)
-                // print("Full response:", responseObj)
-                
                 if let choices = responseObj["choices"] as? [[String: Any]],
                    let message = choices.first?["message"] as? [String: Any],
                    let content = message["content"] as? String {
                     let ipa = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                    // простий захист: залишити тільки те, що в квадратних дужках, якщо модель додала щось зайве
                     if let range = ipa.range(of: "\\[.*\\]", options: .regularExpression) {
                         let bracketed = String(ipa[range])
                         shared.cache[word] = bracketed
                         completion(bracketed)
                     } else {
-                        // якщо немає квадратних дужок, повернемо весь рядок (або nil)
                         shared.cache[word] = ipa
                         completion(ipa)
                     }
@@ -113,60 +100,10 @@ struct OpenAITranslator {
             
             completion(nil)
         }.resume()
-        
     }
     
     
-    //   static func makeIPA(for word: String, completion: @escaping (String?) -> Void) {
-    //        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
-    //            completion(nil)
-    //            return
-    //        }
-    //
-    //        let systemPrompt =
-    //        """
-    //        You are a dictionary bot. Provide only the IPA transcription for the word "\(word)" in square brackets, for American English. Do not give explanations or examples. Output must be like: [ˈæpəl].
-    //        """
-    //
-    //        let messages: [[String: String]] = [
-    //            ["role": "system", "content": systemPrompt]
-    //        ]
-    //
-    //        let json: [String: Any] = [
-    //            "model": "gpt-4o-mini", // або gpt-3.5, можна поставити дешеву модель
-    //            "messages": messages,
-    //            "temperature": 0,
-    //            "max_tokens": 20
-    //        ]
-    //
-    //        var request = URLRequest(url: url)
-    //        request.httpMethod = "POST"
-    //        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-    //        request.addValue("Bearer \(AppDefaults.openAIKey))", forHTTPHeaderField: "Authorization")
-    //        request.httpBody = try? JSONSerialization.data(withJSONObject: json)
-    //
-    //        URLSession.shared.dataTask(with: request) { data, _, error in
-    //            guard let data = data, error == nil else {
-    //                completion(nil)
-    //                return
-    //            }
-    //
-    //            if let response = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-    //               let choices = response["choices"] as? [[String: Any]],
-    //               let message = choices.first?["message"] as? [String: Any],
-    //               let content = message["content"] as? String
-    //            {
-    //                let ipa = content.trimmingCharacters(in: .whitespacesAndNewlines)
-    //                completion(ipa)
-    //            } else {
-    //                completion(nil)
-    //            }
-    //        }.resume()
-    //    }
-    
-    
     static func makeSentence(with word: String, completion: @escaping (String?) -> Void) {
-        
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             completion(nil)
             return
@@ -183,7 +120,7 @@ struct OpenAITranslator {
         ]
         
         let json: [String: Any] = [
-            "model": "gpt-4o-mini", // або gpt-3.5, або інша — як хочеш
+            "model": "gpt-4o-mini",
             "messages": messages,
             "temperature": 0.7,
             "max_tokens": 30
@@ -211,12 +148,10 @@ struct OpenAITranslator {
                 completion(nil)
             }
         }.resume()
-        
     }
     
     
     static func translate(text: String, to targetLang: String, completion: @escaping (String?) -> Void) {
-        
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             completion(nil)
             return
@@ -254,6 +189,5 @@ struct OpenAITranslator {
                 completion(nil)
             }
         }.resume()
-        
     }
 }

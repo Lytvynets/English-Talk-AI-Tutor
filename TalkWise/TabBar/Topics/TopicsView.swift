@@ -18,7 +18,6 @@ struct TopicsView: View {
     
     var body: some View {
         CustomNavigationBar(title: "Choose a topic", showLogo: false, imageName: "Vector4324234", customNavBarState: .withoutBackButton) {
-            
             ZStack {
                 VStack {
                     ScrollView {
@@ -53,7 +52,6 @@ struct TopicsView: View {
                                 }
                             
                                 .clipShape(RoundedRectangle(cornerRadius: 50))
-                            
                         }
                         .padding(.horizontal, 10)
                         
@@ -68,10 +66,8 @@ struct TopicsView: View {
                                     appRouter.goTo(.freeConversationView)
                                 }
                         }
-                        
                     }
                     .scrollIndicators(.hidden)
-                    
                 }
                 .padding(.top, 90)
                 .padding(.bottom, 177)

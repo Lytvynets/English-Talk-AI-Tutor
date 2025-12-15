@@ -10,9 +10,7 @@ import Foundation
 final class DailyTapCounter: ObservableObject {
     
     @Published var tapsToday: Int = 0
-    
     private let maxTapsPerDay = 3
-    
     private let tapsKey = "daily_taps_count"
     private let dateKey = "daily_taps_date"
     

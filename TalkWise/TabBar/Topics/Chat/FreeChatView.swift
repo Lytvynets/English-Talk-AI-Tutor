@@ -122,7 +122,7 @@ struct FreeChatView: View {
                                             ) { translatedText in
                                                 DispatchQueue.main.async {
                                                     withAnimation {
-                                                        viewModel.highlightedMessageIndex = index // передати індекс
+                                                        viewModel.highlightedMessageIndex = index
                                                         viewModel.translateWord = ""
                                                         viewModel.translateOnlyWord = false
                                                         viewModel.showTranslateWord = true
@@ -210,7 +210,7 @@ struct FreeChatView: View {
                         }
                         .padding(.trailing)
                     }
-                    .padding(.bottom, keyboard.currentHeight) // <- додаємо відступ під клавіатуру
+                    .padding(.bottom, keyboard.currentHeight)
                     .animation(.easeOut(duration: 0.25), value: keyboard.currentHeight)
                 }
                 .padding(.bottom)
@@ -224,7 +224,6 @@ struct FreeChatView: View {
                 Text("Word \(viewModel.translateWord) saved")
             }
         }
-//        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
@@ -238,24 +237,4 @@ struct FreeChatView: View {
         .environmentObject(WordsViewModel())
         .environmentObject(SettingsViewModel())
         .environmentObject(TopicViewModel(settings: settingsViewModel))
-}
-
-
-
-class KeyboardResponder: ObservableObject {
-    @Published var currentHeight: CGFloat = 0
-    private var cancellables: Set<AnyCancellable> = []
-
-    init() {
-        let willShow = NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
-            .map { $0.height }
-
-        let willHide = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-            .map { _ in CGFloat(0) }
-
-        Publishers.Merge(willShow, willHide)
-            .assign(to: \.currentHeight, on: self)
-            .store(in: &cancellables)
-    }
 }

@@ -94,14 +94,14 @@ class AuthorizationViewModel: NSObject, ObservableObject {
         guard let user = Auth.auth().currentUser else {
             throw NSError(domain: "Auth", code: 401)
         }
-
+        
         let uid = user.uid
         let db = Firestore.firestore()
-
+        
         let userRef = db.collection("users").document(uid)
-
+        
         try await userRef.delete()
-
+        
         try await user.delete()
     }
     
@@ -127,12 +127,6 @@ extension AuthorizationViewModel: ASAuthorizationControllerDelegate {
             rawNonce: nonce,
             accessToken: nil
         )
-        
-        //        let firebaseCredential = OAuthProvider.credential(
-        //            withProviderID: "apple.com",
-        //            idToken: tokenString,
-        //            rawNonce: nonce
-        //        )
         
         Task {
             do {

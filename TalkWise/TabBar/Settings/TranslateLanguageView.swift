@@ -26,7 +26,7 @@ struct TranslateLanguageView: View {
                     .foregroundStyle(.white)
                     .font(.custom("Montserrat-Medium", size: AdaptiveFontSize.adaptive19))
                     .padding(.top, 10)
-         
+                
                 ScrollView {
                     ForEach(settingsViewModel.Languages, id: \.self) { language in
                         LanguageCell(language: language)

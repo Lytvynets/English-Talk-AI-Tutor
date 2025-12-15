@@ -32,7 +32,6 @@ struct LanguageCell: View {
             UserDefaults.standard.set(language, forKey: "selectedLanguages")
             settingsViewModel.showTranslateLanguageView = false
         }
-       
     }
 }
 

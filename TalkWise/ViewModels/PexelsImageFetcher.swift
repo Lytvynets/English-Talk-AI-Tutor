@@ -21,7 +21,7 @@ struct PexelsSearchResult: Decodable {
 
 class PexelsImageFetcher {
     static let shared = PexelsImageFetcher()
-    private let apiKey = AppDefaults.imageAPIKey // 🔑 Встав сюди свій API ключ
+    private let apiKey = AppDefaults.imageAPIKey
     
     func fetchImageURL(for query: String, completion: @escaping (URL?) -> Void) {
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
@@ -29,16 +29,16 @@ class PexelsImageFetcher {
             completion(nil)
             return
         }
-
+        
         var request = URLRequest(url: url)
         request.setValue(apiKey, forHTTPHeaderField: "Authorization")
-
+        
         URLSession.shared.dataTask(with: request) { data, _, error in
             guard let data = data, error == nil else {
                 completion(nil)
                 return
             }
-
+            
             do {
                 let result = try JSONDecoder().decode(PexelsSearchResult.self, from: data)
                 if let urlString = result.photos.first?.src.medium,
@@ -54,4 +54,3 @@ class PexelsImageFetcher {
         }.resume()
     }
 }
-

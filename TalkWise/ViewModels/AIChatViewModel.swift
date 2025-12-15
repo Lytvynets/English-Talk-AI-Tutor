@@ -11,12 +11,6 @@ import Speech
 import SwiftUI
 import FirebaseAuth
 
-//struct ChatMessage: Identifiable {
-//    let id = UUID()
-//    let role: String // "user" або "assistant"
-//    let content: String
-//}
-
 
 class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     
@@ -27,12 +21,7 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     private let synthesizer = AVSpeechSynthesizer()
     private var avPlayer: AVPlayer?
     
-    
-    
     @Published var highlightedMessageIndex: Int? = nil
-    
-    
-    
     @Published var transcribedText = ""
     @Published var aiResponse = ""
     @Published var isRecording = false
@@ -41,14 +30,6 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     @Published var translateWord = ""
     @Published var translatedWord = ""
     @Published var translateOnlyWord = true
-    //    static var prompt = "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."
-    
-    // Сюди треба додати вибрану тему
-    //    @Published var messagesHistory: [[String: String]] = [
-    //        ["role": "system", "content": "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."]
-    //    ]
-    
-    
     @Published var messagesHistory: [[String: String]] = [
         ["role": "system", "content": "prompt"]
     ]
@@ -142,146 +123,62 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     
     
     func sendToOpenAI() {
-            guard !transcribedText.isEmpty else { return }
-            
-            // Додаємо останнє повідомлення користувача до історії need to add user id
-            messagesHistory.append(["role": "user", "content": transcribedText])
-            
-            let payload: [String: Any] = [
-                "model": "gpt-4o",
-                "messages": messagesHistory
-            ]
-            
-            guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
-                  let httpBody = try? JSONSerialization.data(withJSONObject: payload) else { return }
+        guard !transcribedText.isEmpty else { return }
+        messagesHistory.append(["role": "user", "content": transcribedText])
+        let payload: [String: Any] = [
+            "model": "gpt-4o",
+            "messages": messagesHistory
+        ]
         
-        // треба перевірити
+        guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
+              let httpBody = try? JSONSerialization.data(withJSONObject: payload) else { return }
+        
         
         self.transcribedText = ""
-        // треба перевірити
         
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(AppDefaults.openAIKey)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = httpBody
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(AppDefaults.openAIKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = httpBody
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("❌ Request error: \(error.localizedDescription)")
+                return
+            }
             
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("❌ Request error: \(error.localizedDescription)")
-                    return
-                }
+            guard let data = data else {
+                print("❌ No data received")
+                return
+            }
+            
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 
-                guard let data = data else {
-                    print("❌ No data received")
-                    return
-                }
-                
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                if let choices = json?["choices"] as? [[String: Any]],
+                   let message = choices.first?["message"] as? [String: Any],
+                   let content = message["content"] as? String {
                     
-                    if let choices = json?["choices"] as? [[String: Any]],
-                       let message = choices.first?["message"] as? [String: Any],
-                       let content = message["content"] as? String {
-                        
-                        DispatchQueue.main.async {
-                            self.aiResponse = content
-                            
-                            // Додаємо відповідь AI до історії
-                            self.messagesHistory.append(["role": "assistant", "content": content])
-                            
-                          
-                            
-                            self.speakWithOpenAITTS(text: content) { url in
-                                if let url = url {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        self.playAudio(from: url)
-                                    }
+                    DispatchQueue.main.async {
+                        self.aiResponse = content
+                        self.messagesHistory.append(["role": "assistant", "content": content])
+                        self.speakWithOpenAITTS(text: content) { url in
+                            if let url = url {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    self.playAudio(from: url)
                                 }
                             }
                         }
-                    } else {
-                        print("❌ Unexpected JSON format: \(json ?? [:])")
                     }
-                } catch {
-                    print("❌ JSON parsing error: \(error.localizedDescription)")
+                } else {
+                    print("❌ Unexpected JSON format: \(json ?? [:])")
                 }
-            }.resume()
-        
+            } catch {
+                print("❌ JSON parsing error: \(error.localizedDescription)")
+            }
+        }.resume()
     }
-    
-    
-    
-    //    private func sendToOpenAI() {
-    //        guard !transcribedText.isEmpty else { return }
-    //
-    //        let systemPrompt = "You are a friendly English tutor. When the user makes mistakes in grammar or vocabulary, correct them and explain the correction simply."
-    //
-    //        let messages: [[String: String]] = [
-    //            ["role": "system", "content": systemPrompt],
-    //            ["role": "user", "content": transcribedText]
-    //        ]
-    //
-    //        let payload: [String: Any] = [
-    //            "model": "gpt-4o",
-    //            "messages": messages
-    //        ]
-    //
-    //        guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
-    //              let httpBody = try? JSONSerialization.data(withJSONObject: payload) else { return }
-    //
-    //        var request = URLRequest(url: url)
-    //        request.httpMethod = "POST"
-    //        request.setValue("Bearer \(AppDefaults.openAIKey)", forHTTPHeaderField: "Authorization")
-    //        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    //        request.httpBody = httpBody
-    //
-    //        URLSession.shared.dataTask(with: request) { data, response, error in
-    //            if let error = error {
-    //                print("❌ Request error: \(error.localizedDescription)")
-    //                return
-    //            }
-    //
-    //            if let httpResponse = response as? HTTPURLResponse {
-    //                print("📡 Status Code: \(httpResponse.statusCode)")
-    //            }
-    //
-    //            guard let data = data else {
-    //                print("❌ No data received")
-    //                return
-    //            }
-    //
-    //            if let raw = String(data: data, encoding: .utf8) {
-    //                print("📦 Raw JSON: \(raw)")
-    //            }
-    //
-    //            do {
-    //                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-    //
-    //                if let choices = json?["choices"] as? [[String: Any]],
-    //                   let message = choices.first?["message"] as? [String: Any],
-    //                   let content = message["content"] as? String {
-    //
-    //                    DispatchQueue.main.async {
-    //                        self.aiResponse = content
-    //
-    //                        self.speakWithOpenAITTS(text: "\(content)") { url in
-    //                            if let url = url {
-    //                                print("URL: \(url)")
-    //                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-    //                                    self.playAudio(from: url)
-    //                                }
-    //                            }
-    //                        }
-    //                    }
-    //                } else {
-    //                    print("❌ Unexpected JSON format: \(json ?? [:])")
-    //                }
-    //            } catch {
-    //                print("❌ JSON parsing error: \(error.localizedDescription)")
-    //            }
-    //        }.resume()
-    //    }
     
     
     func speakWithOpenAITTS(text: String, completion: @escaping (URL?) -> Void) {
@@ -297,7 +194,6 @@ class AIChatViewModel: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
             "model": "tts-1",
             "input": text,
             "voice": voice,
-            //            "voice": "nova", // або nova, echo, alloy...
             "response_format": "mp3"
         ]
         

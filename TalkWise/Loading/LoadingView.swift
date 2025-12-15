@@ -12,12 +12,10 @@ struct LoadingView: View {
     @State private var showImage = false
     @State private var showTitle = false
     @State private var showSubtitle = false
-
+    
     
     var body: some View {
-        
         ZStack {
-            
             Color(hex: "#212737")
                 .ignoresSafeArea()
             
@@ -36,8 +34,6 @@ struct LoadingView: View {
                         }
                     }
                 
-                
-                
                 if showTitle {
                     TypewriterText(text: "English Talk AI Tutor")
                         .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive25))
@@ -54,60 +50,30 @@ struct LoadingView: View {
                         .foregroundStyle(.white)
                         .padding(.bottom, 10)
                 }
-                 
                 
                 Text("Your AI speaking partner")
                     .font(.custom("Montserrat-Light", size: AdaptiveFontSize.adaptive16))
                     .opacity(showSubtitle ? 1 : 0)
-                        .animation(.easeOut(duration: 0.6), value: showSubtitle)
-                        .foregroundStyle(.white)
-         
+                    .animation(.easeOut(duration: 0.6), value: showSubtitle)
+                    .foregroundStyle(.white)
+                
             }
             .padding(.bottom, 50)
             
-            
             VStack {
-                
                 Spacer()
-                
                 Image("Vector 1")
                     .resizable()
                     .frame(height: 200)
-                
-                
             }
             .ignoresSafeArea()
-            
         }
         .onAppear {
             showImage = true
-          }
+        }
     }
 }
 
 #Preview {
     LoadingView()
-}
-
-
-
-struct TypewriterText: View {
-    let text: String
-    @State private var visibleText = ""
-    private let haptic = UIImpactFeedbackGenerator(style: .medium)
-
-    
-    var body: some View {
-        Text(visibleText)
-            .onAppear {
-                visibleText = ""
-                haptic.prepare()
-                for (index, char) in text.enumerated() {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
-                        visibleText.append(char)
-                        haptic.impactOccurred(intensity: 0.3)
-                    }
-                }
-            }
-    }
 }

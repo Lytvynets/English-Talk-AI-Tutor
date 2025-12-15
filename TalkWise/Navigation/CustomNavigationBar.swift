@@ -10,7 +10,6 @@ import SwiftUI
 enum CustomNavBarState {
     case withBackButton
     case withoutBackButton
-    
 }
 
 struct CustomNavigationBar<Content: View>: View {
@@ -37,21 +36,16 @@ struct CustomNavigationBar<Content: View>: View {
             switch customNavBarState {
             case .withBackButton:
                 ZStack {
-                    
                     VStack {
                         Image(imageName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
-                        
                         Spacer()
-                        
                     }
                     
                     VStack {
-                        
                         HStack {
-                            
                             Button {
                                 if let onBack = onBack {
                                     onBack()
@@ -82,7 +76,6 @@ struct CustomNavigationBar<Content: View>: View {
                                 }
                                 .padding()
                                 .padding(.top, 45)
-                                
                             }
                             
                             Spacer()
@@ -92,34 +85,26 @@ struct CustomNavigationBar<Content: View>: View {
                     }
                 }
                 
-                
                 content
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             case .withoutBackButton:
-                
                 ZStack {
-                    
                     VStack {
                         Image(imageName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
-                        
                         Spacer()
-                        
                     }
                     
                     VStack {
-                        
                         HStack {
-                            
-                  
                             Spacer()
                             Text(title)
                                 .font(.system(size: AdaptiveFontSize.adaptive24, weight: .semibold, design: .rounded))
                                 .foregroundStyle(.white)
-                       
+                            
                             Spacer()
                         }
                         .padding(.bottom, 7)
@@ -133,7 +118,6 @@ struct CustomNavigationBar<Content: View>: View {
                                 }
                                 .padding()
                                 .padding(.top, 45)
-                                
                             }
                             
                             Spacer()
@@ -143,63 +127,13 @@ struct CustomNavigationBar<Content: View>: View {
                     }
                 }
                 
-                
                 content
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-//                ZStack {
-//                    
-//                    VStack {
-//                        Image(imageName)
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fit)
-//                            .frame(maxWidth: .infinity)
-//                        
-//                        Spacer()
-//                        
-//                    }
-//                    
-//                    VStack {
-//                        
-//                        HStack {
-//                            
-//                            
-//                            Spacer()
-//                            
-//                            Text(title)
-//                                .font(.system(size: AdaptiveFontSize.adaptive24, weight: .semibold, design: .rounded))
-//                                .font(.headline)
-//                            
-//                            Spacer()
-//                        }
-//                        .padding(.bottom, 7)
-//                        .padding()
-//                        .padding(.top, 55)
-//                        .overlay {
-//                            if showLogo {
-//                                HStack {
-//                                    Spacer()
-//                                    Image("pixel_pro-solid")
-//                                }
-//                                .padding()
-//                                .padding(.top, 45)
-//                                
-//                            }
-//                            
-//                            Spacer()
-//                        }
-//                    }
-//                }
-//                
-//                
-//                content
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .background(Color(hex: "#212737"))
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
-        
     }
 }
 

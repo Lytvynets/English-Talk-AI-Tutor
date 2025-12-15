@@ -23,7 +23,6 @@ struct CustomAlert: View {
             
             Image("Group 19648")
             
-            
             Button {
                 yesButton()
             } label: {
@@ -43,12 +42,9 @@ struct CustomAlert: View {
             .padding(.top, 25)
             .padding(.bottom, 5)
             
-            
-            
             Button {
                 noButton()
             } label: {
-                
                 Text("NO")
                     .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                     .foregroundStyle(.white)
@@ -61,18 +57,12 @@ struct CustomAlert: View {
                     }
             }
             .clipShape(RoundedRectangle(cornerRadius: 50))
-            
-            
         }
         .padding(.bottom, 25)
         .padding()
         .background(Color(hex: "#232A3A"))
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        
     }
-    
-    
-    
 }
 
 #Preview {
@@ -81,5 +71,4 @@ struct CustomAlert: View {
     } noButton: {
         print("no")
     }
-
 }

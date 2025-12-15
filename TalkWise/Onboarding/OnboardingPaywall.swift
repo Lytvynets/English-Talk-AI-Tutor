@@ -97,13 +97,17 @@ struct OnboardingPaywall: View {
                     Button {
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
+                        inAppPurchaseViewModel.isLoading = true
+
                         Task {
                             if let product = inAppPurchaseViewModel.products.first(where: {$0.id == inAppPurchaseViewModel.selectedProductId }) {
                                 await inAppPurchaseViewModel.purchase(product) { result in
                                     switch result {
                                     case .success(_):
+                                        inAppPurchaseViewModel.isLoading = false
                                         onboardingViewModel.showPaywall = false
                                     case .failure(_):
+                                        inAppPurchaseViewModel.isLoading = false
                                         inAppPurchaseViewModel.presentErrorAlert = true
                                     }
                                 }
@@ -140,6 +144,22 @@ struct OnboardingPaywall: View {
             }
         }
         .ignoresSafeArea()
+        .alert("Purchase Failed", isPresented: $inAppPurchaseViewModel.presentErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("We couldn’t complete your purchase at this time. Please try again later or check your payment method.")
+        }
+        .overlay {
+            if inAppPurchaseViewModel.isLoading {
+                ZStack {
+                    Color.black
+                        .ignoresSafeArea()
+                        .opacity(0.5)
+                    
+                    ProgressView()
+                }
+            }
+        }
     }
 }
 
