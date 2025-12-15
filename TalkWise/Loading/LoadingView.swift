@@ -40,7 +40,7 @@ struct LoadingView: View {
                 
                 if showTitle {
                     TypewriterText(text: "English Talk AI Tutor")
-                        .font(.custom("Montserrat-Bold", size: 25))
+                        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive25))
                         .foregroundStyle(.white)
                         .padding(.bottom, 10)
                         .onAppear {
@@ -50,14 +50,14 @@ struct LoadingView: View {
                         }
                 }else{
                     Text("  ")
-                        .font(.custom("Montserrat-Bold", size: 25))
+                        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive25))
                         .foregroundStyle(.white)
                         .padding(.bottom, 10)
                 }
                  
                 
                 Text("Your AI speaking partner")
-                    .font(.custom("Montserrat-Light", size: 16))
+                    .font(.custom("Montserrat-Light", size: AdaptiveFontSize.adaptive16))
                     .opacity(showSubtitle ? 1 : 0)
                         .animation(.easeOut(duration: 0.6), value: showSubtitle)
                         .foregroundStyle(.white)

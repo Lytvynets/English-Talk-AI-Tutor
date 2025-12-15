@@ -222,7 +222,7 @@ struct InAppPaywallView: View {
                     } label: {
                         Text("CONTINUE")
                             .foregroundStyle(.white)
-                            .font(.custom("Montserrat-Bold", size: 17))
+                            .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                             .padding(20)
                             .frame(maxWidth: .infinity)
                             .background {
@@ -263,7 +263,7 @@ struct InAppPaywallView: View {
                         .padding(.horizontal, 10)
                     }
                     .foregroundStyle(Color(hex: "#A3A3A3") ?? .gray)
-                    .font(.custom("Montserrat-Regular", size: 11))
+                    .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive11))
                 }
                 .foregroundStyle(.white)
                 

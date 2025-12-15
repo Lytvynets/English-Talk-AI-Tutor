@@ -100,7 +100,7 @@ struct AuthorizationView: View {
                     }
                 } label: {
                     Text(signIn ? "SIGN IN" : "SIGN UP")
-                        .font(.custom("Montserrat-Bold", size: 17))
+                        .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                         .foregroundStyle(.white)
                         .padding(20)
                         .frame(width: UIScreen.main.bounds.width / 1.1)
@@ -146,7 +146,7 @@ struct AuthorizationView: View {
                             .padding(.trailing, 7)
                         
                         Text("Sign in with Google")
-                            .font(.custom("Montserrat-Bold", size: 18))
+                            .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive18))
                             .foregroundStyle(.white)
                     }
                     .padding(20)
@@ -191,7 +191,7 @@ struct AuthorizationView: View {
                     .padding(.horizontal, 10)
                 }
                 .foregroundStyle(Color(hex: "#A3A3A3") ?? .gray)
-                .font(.custom("Montserrat-Regular", size: 11))
+                .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive11))
                 .padding(.top)
             }
             .padding(.top)

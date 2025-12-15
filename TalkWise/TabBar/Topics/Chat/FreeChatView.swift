@@ -9,17 +9,19 @@ import SwiftUI
 import AVFoundation
 import Speech
 import FirebaseAuth
+import Combine
 
 struct FreeChatView: View {
     
+    @StateObject private var keyboard = KeyboardResponder()
     @EnvironmentObject var topicViewModel: TopicViewModel
     @EnvironmentObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var wordsViewModel: WordsViewModel
     @EnvironmentObject var viewModel: AIChatViewModel
     @EnvironmentObject var simpleTimerViewModel: SimpleTimerViewModel
     @EnvironmentObject var dailyTapCounter: DailyTapCounter
-    
     @Binding var savedWords: [String]
+    
     
     var body: some View {
         CustomNavigationBar(title: topicViewModel.selectedTopic, showLogo: true, imageName: "Vector4324234", customNavBarState: .withBackButton) {
@@ -34,7 +36,7 @@ struct FreeChatView: View {
                                 ? "Hello, I’m fine. How can I help you?"
                                 : (message["content"] ?? "nil")
                                 
-                                if message["role"] == "user" { // тут теба додати id user
+                                if message["role"] == "user" {
                                     Spacer()
                                     Text(message["content"] ?? "nil")
                                         .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive13))
@@ -47,9 +49,7 @@ struct FreeChatView: View {
                                         .frame(maxWidth: 250, alignment: .trailing)
                                 } else {
                                     VStack {
-//                                        if  viewModel.showTranslateWord {
                                         if viewModel.showTranslateWord && viewModel.highlightedMessageIndex == index {
-
                                             HStack {
                                                 Text("\(viewModel.translateWord) - \(viewModel.translatedWord)")
                                                 
@@ -75,7 +75,6 @@ struct FreeChatView: View {
                                         }
                                         
                                         HStack {
-                                            
                                             HStack {
                                                 VStack {
                                                     Image("gravity-ui_volume-fill")
@@ -135,8 +134,6 @@ struct FreeChatView: View {
                                         }
                                     }
                                 }
-                                
-                                
                             }
                         }
                     }
@@ -146,18 +143,11 @@ struct FreeChatView: View {
                 .padding(.bottom, 75)
                 
                 VStack {
-                    
-                    
-                    
                     Spacer()
                     ZStack {
-                        
-                        
                         Group {
                             if viewModel.isRecording {
-                                // Заглушка під час запису
                                 HStack {
-                                    
                                     HStack {
                                         Circle()
                                             .fill(
@@ -171,7 +161,6 @@ struct FreeChatView: View {
                                         
                                     }
                                     
-                                    
                                     Text("Recording...")
                                         .foregroundStyle(.gray)
                                     
@@ -184,7 +173,6 @@ struct FreeChatView: View {
                                 .padding()
                                 
                             } else {
-                                // Звичайний TextField
                                 TextField("Write your message", text: $viewModel.transcribedText)
                                     .foregroundStyle(.white)
                                     .padding()
@@ -195,38 +183,7 @@ struct FreeChatView: View {
                             }
                         }
                         
-                        
-                        //                        if !viewModel.isRecording {
-                        //                            TextField("Write your message", text: $viewModel.transcribedText)
-                        //                                .foregroundStyle(.white)
-                        //                                .padding()
-                        //                                .padding(.vertical, 5)
-                        //                                .background(Color(hex: "#232A3A"))
-                        //                                .clipShape(RoundedRectangle(cornerRadius: 30))
-                        //                                .padding()
-                        //                        }
-                        
-                        
-                        
-                        
                         HStack {
-                            
-                            //                            if viewModel.isRecording {
-                            //                                HStack {
-                            //                                    Circle()
-                            //                                        .fill(
-                            //                                            LinearGradient(colors: [Color(Color(hex: "#2E64E3") ?? .blue), Color(Color(hex: "#38A9CF") ?? .blue)], startPoint: .leading, endPoint: .trailing)
-                            //                                        )
-                            //                                        .frame(width: 10, height: 10)
-                            //
-                            //                                    Text(simpleTimerViewModel.timeString)
-                            //                                        .foregroundStyle(.white)
-                            //                                        .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive13))
-                            //
-                            //                                }
-                            //                                .padding(.leading, 35)
-                            //                            }
-                            
                             Spacer()
                             Button(action: {
                                 if !viewModel.isRecording {
@@ -253,9 +210,13 @@ struct FreeChatView: View {
                         }
                         .padding(.trailing)
                     }
-                    
+                    .padding(.bottom, keyboard.currentHeight) // <- додаємо відступ під клавіатуру
+                    .animation(.easeOut(duration: 0.25), value: keyboard.currentHeight)
                 }
                 .padding(.bottom)
+            }
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
             .alert("Words saving", isPresented: $wordsViewModel.showSavedAlert) {
                 Button("OK", role: .cancel) { }
@@ -263,7 +224,7 @@ struct FreeChatView: View {
                 Text("Word \(viewModel.translateWord) saved")
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+//        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
@@ -277,4 +238,24 @@ struct FreeChatView: View {
         .environmentObject(WordsViewModel())
         .environmentObject(SettingsViewModel())
         .environmentObject(TopicViewModel(settings: settingsViewModel))
+}
+
+
+
+class KeyboardResponder: ObservableObject {
+    @Published var currentHeight: CGFloat = 0
+    private var cancellables: Set<AnyCancellable> = []
+
+    init() {
+        let willShow = NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
+            .map { $0.height }
+
+        let willHide = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+
+        Publishers.Merge(willShow, willHide)
+            .assign(to: \.currentHeight, on: self)
+            .store(in: &cancellables)
+    }
 }

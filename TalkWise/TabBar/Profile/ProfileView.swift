@@ -200,7 +200,7 @@ struct ProfileView: View {
                         Spacer()
                         
                         Text("\(dailyTapCounter.tapsToday)/3")
-                            .font(.custom("Montserrat-SemiBold", size: 15))
+                            .font(.custom("Montserrat-SemiBold", size: AdaptiveFontSize.adaptive15))
                             .padding()
                             .padding(.horizontal, 10)
                             .background {

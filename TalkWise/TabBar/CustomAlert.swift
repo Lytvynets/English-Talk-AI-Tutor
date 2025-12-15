@@ -29,7 +29,7 @@ struct CustomAlert: View {
             } label: {
                 Text("YES")
                     .foregroundStyle(.white)
-                    .font(.custom("Montserrat-Bold", size: 17))
+                    .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                     .padding()
                     .frame(width: UIScreen.main.bounds.width / 1.5)
                     .background {
@@ -50,7 +50,7 @@ struct CustomAlert: View {
             } label: {
                 
                 Text("NO")
-                    .font(.custom("Montserrat-Bold", size: 17))
+                    .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive17))
                     .foregroundStyle(.white)
                     .padding()
                     .frame(width: UIScreen.main.bounds.width / 1.5)

@@ -239,7 +239,7 @@ struct SettingsView: View {
                             .padding(.leading)
                         
                         Text("Other apps")
-                            .font(.custom("Montserrat-Bold", size: 16))
+                            .font(.custom("Montserrat-Bold", size: AdaptiveFontSize.adaptive16))
                             .foregroundStyle(.white)
                             .padding()
                         
