@@ -129,10 +129,6 @@ struct AuthorizationView: View {
                     }
                     .padding()
                 
-                if authorizationViewModel.isLoading {
-                    ProgressView()
-                }
-                
                 Button {
                     Task {
                         try await authorizationViewModel.signInWithGoogle()
@@ -180,7 +176,7 @@ struct AuthorizationView: View {
                     } label: {
                         Text("Terms of Use")
                             .underline()
-                    }.padding(.horizontal, 10)
+                    }.padding(.horizontal, 11)
                     
                     Button {
                         openURL(AppDefaults.privacyPolicyURL)
@@ -188,7 +184,7 @@ struct AuthorizationView: View {
                         Text("Privacy Policy")
                             .underline()
                     }
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, 11)
                 }
                 .foregroundStyle(Color(hex: "#A3A3A3") ?? .gray)
                 .font(.custom("Montserrat-Regular", size: AdaptiveFontSize.adaptive11))
@@ -197,6 +193,15 @@ struct AuthorizationView: View {
             .padding(.top)
         }
         .ignoresSafeArea()
+        .overlay {
+            if authorizationViewModel.isLoading {
+                ProgressView()
+                    .tint(.gray)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.gray.opacity(0.75))
+            }
+        }
     }
     
     

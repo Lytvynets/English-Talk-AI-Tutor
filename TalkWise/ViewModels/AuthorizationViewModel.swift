@@ -48,6 +48,7 @@ class AuthorizationViewModel: NSObject, ObservableObject {
     
     
     func signInWithGoogle() async throws -> User {
+        isLoading = true
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw NSError(domain: "No clientID", code: 0)
         }
@@ -68,6 +69,8 @@ class AuthorizationViewModel: NSObject, ObservableObject {
                                                        accessToken: result.user.accessToken.tokenString)
         
         let authResult = try await Auth.auth().signIn(with: credential)
+        isLoading = false
+        showAuthorizationView = false
         return authResult.user
     }
     
@@ -103,6 +106,7 @@ class AuthorizationViewModel: NSObject, ObservableObject {
         try await userRef.delete()
         
         try await user.delete()
+        try signOut()
     }
     
     
@@ -132,6 +136,8 @@ extension AuthorizationViewModel: ASAuthorizationControllerDelegate {
             do {
                 let result = try await Auth.auth().signIn(with: firebaseCredential)
                 print("User logged:", result.user.uid)
+                isLoading = false
+                showAuthorizationView = false
             } catch {
                 print("Auth error:", error.localizedDescription)
             }

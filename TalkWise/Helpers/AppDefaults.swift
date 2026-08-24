@@ -17,7 +17,7 @@ class AppDefaults {
     static let freeTrailYearly = "yearlyTrial.subscription.EnglishTalkAITutor"
     static let otherAppsUrl = "https://apps.apple.com/us/developer/vladyslav-lytvynets/id1660079103"
     static let termsOfUseURL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
-    static let privacyPolicyURL = "https://www.termsfeed.com/live/fa2cbc15-7cfa-4630-b321-e81497176be2"
+    static let privacyPolicyURL = "https://docs.google.com/document/d/1ooeI4tYhcrAec5d2_URkbKTyHj87wDV4GgzNBHloKM8/edit?usp=share_link"
     static let appURL = "https://apps.apple.com/app/pixeltaicai/id6749824174"
     static let email = "vladlytvynets7@gmail.com"
     

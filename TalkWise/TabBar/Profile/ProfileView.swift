@@ -137,6 +137,8 @@ struct ProfileView: View {
                             HStack {
                                 Image(settingsViewModel.purpose == .travel ? "radio" : "Ellipse 5")
                                 Text("Travel")
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
                             }
                         }
                         
@@ -148,6 +150,8 @@ struct ProfileView: View {
                             HStack {
                                 Image(settingsViewModel.purpose == .work ? "radio" : "Ellipse 5")
                                 Text("Work")
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
                             }
                         }
                         
@@ -158,6 +162,8 @@ struct ProfileView: View {
                             HStack {
                                 Image(settingsViewModel.purpose == .study ? "radio" : "Ellipse 5")
                                 Text("Study")
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
                             }
                         }
                         
@@ -267,8 +273,9 @@ struct ProfileView: View {
                 CustomAlert(textAlert: "Are you sure you want to Delete account?") {
                     Task {
                         try await authorizationViewModel.deleteUserDocument()
-                        try authorizationViewModel.signOut()
                         authorizationViewModel.showAuthorizationView = true
+                        showAlertDeleteAccount = false
+                      //try authorizationViewModel.signOut()
                         
                     }
                 } noButton: {
@@ -285,6 +292,7 @@ struct ProfileView: View {
                     Task {
                         try authorizationViewModel.signOut()
                         authorizationViewModel.showAuthorizationView = true
+                        showAlertLogout = false
                     }
                 } noButton: {
                     showAlertLogout = false
